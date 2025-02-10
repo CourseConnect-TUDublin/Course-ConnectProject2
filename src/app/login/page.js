@@ -24,12 +24,13 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch("/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -41,13 +42,16 @@ export default function LoginPage() {
         throw new Error(data.message || "Login failed");
       }
 
-      // Save token (if needed)
-      localStorage.setItem("authToken", data.token);
-
-      // Redirect after login
-      router.push("/dashboard");
+      // Handle successful login
+      if (data.user) {
+        // Store user data in localStorage (optional)
+        localStorage.setItem("user", JSON.stringify(data.user));
+        
+        // Redirect to dashboard
+        router.push("/dashboard");
+      }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "An error occurred during login");
     } finally {
       setLoading(false);
     }
@@ -66,7 +70,7 @@ export default function LoginPage() {
 
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-          <Box component="form" sx={{ mt: 2 }}>
+          <Box component="form" sx={{ mt: 2 }} onSubmit={handleLogin}>
             <TextField
               label="Email"
               type="email"
@@ -75,6 +79,7 @@ export default function LoginPage() {
               margin="normal"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
 
             <TextField
@@ -85,6 +90,7 @@ export default function LoginPage() {
               margin="normal"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
 
             <FormControlLabel
@@ -94,11 +100,11 @@ export default function LoginPage() {
             />
 
             <Button
+              type="submit"
               variant="contained"
               color="primary"
               fullWidth
               sx={{ mt: 2, py: 1.5, fontSize: "1rem", fontWeight: "bold" }}
-              onClick={handleLogin}
               disabled={loading}
             >
               {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
