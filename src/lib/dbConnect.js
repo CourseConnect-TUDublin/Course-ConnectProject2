@@ -4,27 +4,27 @@ import mongoose from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable in your .env.local file"
-  );
+  throw new Error("Please define the MONGODB_URI environment variable in your .env.local file");
 }
 
-// Use globalThis to persist the connection across hot reloads in development
-let cached = globalThis.mongoose;
+
+let cached = global.mongoose;
 if (!cached) {
-  cached = globalThis.mongoose = { conn: null, promise: null };
+  cached = global.mongoose = { conn: null, promise: null };
 }
 
-async function dbConnect() {
+export async function connectToDatabase() {
   if (cached.conn) {
     return cached.conn;
   }
   if (!cached.promise) {
-    // No need for useNewUrlParser or useUnifiedTopology in Mongoose v6+
-    cached.promise = mongoose.connect(MONGODB_URI);
+    cached.promise = mongoose
+      .connect(MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      })
+      .then((mongooseInstance) => mongooseInstance);
   }
   cached.conn = await cached.promise;
   return cached.conn;
 }
-
-export default dbConnect;
