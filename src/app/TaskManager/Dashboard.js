@@ -1,4 +1,3 @@
-// /src/app/TaskManager/Dashboard.js
 'use client';
 
 import React from 'react';
@@ -8,29 +7,13 @@ import './Dashboard.css';
 const Dashboard = () => {
   return (
     <div className="dashboard">
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <h2>Dashboard</h2>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li className="active">Tasks</li>
-            <li>Calendar</li>
-            <li>Analytics</li>
-            <li>Settings</li>
-          </ul>
-        </nav>
-      </aside>
       <div className="main-content">
         <header className="dashboard-header">
-          <h1>Student Dashboard</h1>
-          <div className="profile">
-            <img src="/profile.jpg" alt="Profile" />
-            <span>Student Name</span>
+          <h1>Your Task Mananger Hub</h1>
+          <div className="user-info">
           </div>
         </header>
         <section className="content">
-          {/* TaskManager is embedded into the dashboard */}
           <TaskManager />
         </section>
       </div>
