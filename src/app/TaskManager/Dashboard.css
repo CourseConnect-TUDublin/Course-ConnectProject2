@@ -1,0 +1,84 @@
+/* Define CSS Variables for a Modern Look */
+:root {
+  --primary-color: #1abc9c;
+  --secondary-color: #16a085;
+  --background-color: #f7f7f7;
+  --card-bg: #ffffff;
+  --text-color: #333;
+  --header-text: #fff;
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.15);
+  --shadow-dark: rgba(0, 0, 0, 0.2);
+  --border-radius: 8px;
+  --transition-speed: 0.3s;
+}
+
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
+
+/* Dashboard Container */
+.dashboard {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Main Content Styles */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Modern Header */
+.dashboard-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  padding: 20px;
+  border-radius: var(--border-radius);
+  color: var(--header-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px var(--shadow-light);
+  margin-bottom: 20px;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+/* Profile with subtle animation */
+.profile {
+  display: flex;
+  align-items: center;
+  transition: transform var(--transition-speed);
+}
+
+.profile:hover {
+  transform: scale(1.05);
+}
+
+.profile img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+/* Modern Card Design for Content */
+.content {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 25px;
+  box-shadow: 0 8px 16px var(--shadow-medium);
+  transition: box-shadow var(--transition-speed);
+}
+
+.content:hover {
+  box-shadow: 0 12px 24px var(--shadow-dark);
+}
