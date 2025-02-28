@@ -197,22 +197,6 @@ export default function CourseConnectDashboard() {
                 <CalendarWidget events={timetable} refresh={refresh} />
               </Paper>
             </Grid>
-
-            {/* Study Sessions Widget */}
-            <Grid item xs={12}>
-              <Paper
-                elevation={2}
-                sx={{
-                  p: { xs: 3, sm: 4 },
-                  borderRadius: 2,
-                  backgroundColor: "#fafafa",
-                  transition: "transform 0.3s ease",
-                  "&:hover": { transform: "translateY(-4px)" },
-                }}
-              >
-                <SessionList />
-              </Paper>
-            </Grid>
           </Grid>
         </Box>
       </Box>
