@@ -15,14 +15,14 @@ const handler = NextAuth({
       async authorize(credentials) {
         try {
           await dbConnect();
-          const user = await User.findOne({ email: credentials.email.toLowerCase() });
+          const normalizedEmail = credentials.email.toLowerCase();
+          const trimmedPassword = credentials.password.trim();
+          const user = await User.findOne({ email: normalizedEmail }).select("+password");
           if (!user) throw new Error("Invalid email or password");
-          const isMatch = await bcrypt.compare(credentials.password, user.password);
+          const isMatch = await bcrypt.compare(trimmedPassword, user.password);
           if (!isMatch) throw new Error("Invalid email or password");
-          console.log("✅ User Authenticated:", user.email);
-          return { id: user._id.toString(), email: user.email, role: "student" };
+          return { id: user._id.toString(), email: user.email, role: "student", name: user.name };
         } catch (error) {
-          console.error("❌ Authorization Error:", error);
           throw new Error("Login failed");
         }
       }
@@ -30,37 +30,29 @@ const handler = NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
-  cookies: {
-    sessionToken: {
-      name: "next-auth.session-token", // force this name in dev
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production" // false in dev
-      }
-    }
-  },
+  debug: true, // Enable debug logging
+  // Remove custom cookie settings to use defaults in development
+  // cookies: { ... },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.role = user.role;
+        token.name = user.name;
       }
-      console.log("🟡 JWT Token:", token);
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.id;
       session.user.email = token.email;
       session.user.role = token.role;
-      console.log("🟢 Session Data:", session);
+      session.user.name = token.name;
       return session;
     }
   },
   pages: {
-    signIn: "/login"
+    signIn: "/login" // Ensure your login page is at this route.
   }
 });
 

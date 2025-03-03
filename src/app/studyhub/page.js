@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Grid, Paper, Typography, Container } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Paper,
+  Typography,
+  Container,
+} from "@mui/material";
 import StudyBuddyList from "../../components/StudyBuddyList";
 import Chat from "../../components/Chat";
 import RecommendedBuddies from "../../components/RecommendedBuddies";
@@ -15,12 +21,15 @@ import { motion } from "framer-motion";
 export default function StudyHub() {
   const { data: session } = useSession();
   const currentUser = session?.user?.name || "Guest";
-  // Refresh state for updating the StudySessions component when a new session is created.
+
+  // State to trigger refresh for the StudySessions component when a new session is created.
   const [refreshSessions, setRefreshSessions] = useState(Date.now());
 
-  // Callback to trigger a refresh when a new session is created.
+  // Callback that triggers when a new session is created.
   const handleSessionCreated = () => {
-    setRefreshSessions(Date.now());
+    const newRefresh = Date.now();
+    console.log("New session created, refreshing study sessions:", newRefresh);
+    setRefreshSessions(newRefresh);
   };
 
   return (
@@ -137,7 +146,7 @@ export default function StudyHub() {
               >
                 Study Sessions
               </Typography>
-              <StudySessions refresh={refreshSessions} />
+              <StudySessions refresh={refreshSessions} key={refreshSessions} />
             </Paper>
           </Grid>
 

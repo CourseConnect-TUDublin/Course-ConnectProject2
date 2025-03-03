@@ -15,15 +15,19 @@ export default function Login() {
     e.preventDefault();
     setError("");
 
+    console.log("Attempting sign in with:", { email, password });
     const result = await signIn("credentials", {
       redirect: false,
       email,
-      password
+      password,
     });
+    console.log("Sign in result:", result);
 
     if (result?.error) {
+      console.error("Sign in error:", result.error);
       setError("Invalid email or password.");
     } else {
+      console.log("Sign in successful. Redirecting to /dashboard");
       router.push("/dashboard");
     }
   };
