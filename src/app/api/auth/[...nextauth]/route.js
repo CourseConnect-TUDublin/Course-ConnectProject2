@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import AppleProvider from "next-auth/providers/apple";
 import dbConnect from "../../../../lib/dbConnect";
 import User from "../../../../models/User";
 import bcrypt from "bcrypt";
@@ -26,13 +28,19 @@ const handler = NextAuth({
           throw new Error("Login failed");
         }
       }
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    AppleProvider({
+      clientId: process.env.APPLE_CLIENT_ID,
+      clientSecret: process.env.APPLE_CLIENT_SECRET,
     })
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   debug: true, // Enable debug logging
-  // Remove custom cookie settings to use defaults in development
-  // cookies: { ... },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

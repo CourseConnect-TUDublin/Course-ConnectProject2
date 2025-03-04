@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Box, Typography, Card, CardContent, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -10,7 +10,8 @@ const StudySessions = ({ refresh }) => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchSessions = async () => {
+  // Define fetchSessions using useCallback to ensure stability.
+  const fetchSessions = useCallback(async () => {
     setLoading(true);
     try {
       console.log("Fetching sessions with refresh:", refresh);
@@ -27,11 +28,11 @@ const StudySessions = ({ refresh }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [refresh]);
 
   useEffect(() => {
     fetchSessions();
-  }, [refresh]);
+  }, [fetchSessions]);
 
   if (loading) return <Typography>Loading study sessions...</Typography>;
 

@@ -2,7 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, TextField, Button, Card, CardContent, Typography, Box, Alert, CircularProgress } from "@mui/material";
+import { signIn } from "next-auth/react";
+import {
+  Container,
+  TextField,
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Alert,
+  CircularProgress,
+  Link as MuiLink,
+} from "@mui/material";
+import { motion } from "framer-motion";
 
 export default function Register() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
@@ -29,10 +42,10 @@ export default function Register() {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
+      if (!response.ok) throw new Error(data.message || "Registration failed.");
 
       setSuccess("Registration successful! Redirecting to login...");
-      setTimeout(() => router.push("/login"), 2000); // Redirect to login
+      setTimeout(() => router.push("/login"), 2000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -41,18 +54,33 @@ export default function Register() {
   };
 
   return (
-    <Container maxWidth="md">
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <Card sx={{ width: 400, padding: 3, boxShadow: 3 }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #3f51b5, #1a237e)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        p: 2,
+      }}
+    >
+      <Container
+        component={motion.div}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+        maxWidth="sm"
+      >
+        <Card sx={{ p: 3, boxShadow: 6, borderRadius: 3 }}>
           <CardContent>
-            <Typography variant="h4" textAlign="center" gutterBottom>
+            <Typography variant="h4" align="center" gutterBottom>
               Create an Account
             </Typography>
 
-            {error && <Alert severity="error">{error}</Alert>}
-            {success && <Alert severity="success">{success}</Alert>}
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-            <form onSubmit={handleSubmit}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
                 fullWidth
                 label="Full Name"
@@ -82,13 +110,46 @@ export default function Register() {
                 margin="normal"
                 required
               />
-              <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }} disabled={loading}>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                sx={{ mt: 2 }}
+                disabled={loading}
+              >
                 {loading ? <CircularProgress size={24} color="inherit" /> : "Register"}
               </Button>
-            </form>
+            </Box>
+
+            <Typography variant="body2" align="center" sx={{ mt: 2, mb: 1 }}>
+              Or sign up with:
+            </Typography>
+            <Button
+              variant="outlined"
+              fullWidth
+              sx={{ mt: 1, mb: 1, textTransform: "none" }}
+              onClick={() => signIn("google")}
+            >
+              Sign up with Google
+            </Button>
+            <Button
+              variant="outlined"
+              fullWidth
+              sx={{ mt: 1, mb: 1, textTransform: "none" }}
+              onClick={() => signIn("apple")}
+            >
+              Sign up with Apple
+            </Button>
+
+            <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+              <MuiLink href="/login" variant="body2">
+                Already have an account? Login
+              </MuiLink>
+            </Box>
           </CardContent>
         </Card>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 }

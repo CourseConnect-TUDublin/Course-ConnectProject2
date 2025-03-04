@@ -15,17 +15,17 @@ import {
 import { Search, Notifications } from "@mui/icons-material";
 import { useSession, signOut } from "next-auth/react";
 import CalendarWidget from "../../components/CalendarWidget";
+import UrgentTasks from "../../components/UrgentTasks"; // New component for urgent tasks
 import { motion } from "framer-motion";
 import ProtectedRoute from "../../components/ProtectedRoute"; // This component handles the session check
 
 export default function CourseConnectDashboard() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
-  // State for timetable events and refresh trigger
+  // Always call hooks unconditionally.
   const [timetable, setTimetable] = useState([]);
   const [refresh, setRefresh] = useState(Date.now());
 
-  // Define fetchTimetable with useCallback for stable dependencies
   const fetchTimetable = useCallback(async () => {
     try {
       // Use session?.user?.id (or session?.user?.sub if that's set)
@@ -36,18 +36,19 @@ export default function CourseConnectDashboard() {
         headers: { "Content-Type": "application/json" },
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && Array.isArray(data.data)) {
         setTimetable(data.data);
         setRefresh(Date.now());
       } else {
         console.error("Error fetching timetable:", data.error);
+        setTimetable([]);
       }
     } catch (error) {
       console.error("Fetch error:", error);
+      setTimetable([]);
     }
   }, [session]);
 
-  // Fetch timetable data when session exists
   useEffect(() => {
     if (session) {
       fetchTimetable();
@@ -59,139 +60,121 @@ export default function CourseConnectDashboard() {
 
   return (
     <ProtectedRoute>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.5, ease: "easeInOut" }}
-      >
-        <Box sx={{ backgroundColor: "#ffffff" }}>
-          <CssBaseline />
-          {/* Top Navigation */}
-          <AppBar
-            position="fixed"
-            elevation={0}
-            sx={{
-              width: "100%",
-              backgroundColor: "#ffffff",
-              color: "#000000",
-              borderBottom: "1px solid #eaeaea",
-            }}
-          >
-            <Toolbar sx={{ justifyContent: "space-between" }}>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Course Connect
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <IconButton color="inherit">
-                  <Search />
-                </IconButton>
-                <IconButton color="inherit">
-                  <Notifications />
-                </IconButton>
-                <Typography variant="body1" sx={{ ml: 2, fontWeight: 500 }}>
-                  {userName}
+      {status === "loading" ? (
+        <div>Loading...</div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+        >
+          <Box sx={{ backgroundColor: "#ffffff" }}>
+            <CssBaseline />
+            {/* Top Navigation */}
+            <AppBar
+              position="fixed"
+              elevation={0}
+              sx={{
+                width: "100%",
+                backgroundColor: "#ffffff",
+                color: "#000000",
+                borderBottom: "1px solid #eaeaea",
+              }}
+            >
+              <Toolbar sx={{ justifyContent: "space-between" }}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Course Connect
                 </Typography>
-                <Button
-                  color="secondary"
-                  onClick={() => signOut({ callbackUrl: "/login" })}
-                  sx={{ ml: 2, textTransform: "none" }}
-                >
-                  Sign Out
-                </Button>
-              </Box>
-            </Toolbar>
-          </AppBar>
-          <Toolbar />
-          {/* Main content container */}
-          <Box
-            sx={{
-              maxWidth: 1200,
-              mx: "auto",
-              px: { xs: 2, sm: 3 },
-              py: { xs: 3, sm: 4 },
-            }}
-          >
-            <Typography
-              variant="h4"
-              gutterBottom
-              sx={{ fontWeight: 700, letterSpacing: "-0.5px", mb: 1 }}
-            >
-              Welcome, {userName}!
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              sx={{ mb: { xs: 2, sm: 3 }, color: "#666666" }}
-            >
-              Here is your agenda for today
-            </Typography>
-            {/* Grid Layout for Widgets */}
-            <Grid container spacing={4}>
-              {/* Urgent Tasks Widget */}
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={2}
-                  sx={{
-                    p: { xs: 3, sm: 4 },
-                    borderRadius: 2,
-                    backgroundColor: "#fafafa",
-                    transition: "transform 0.3s ease",
-                    "&:hover": { transform: "translateY(-4px)" },
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{ mb: 2, fontWeight: 600, letterSpacing: "-0.25px" }}
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <IconButton color="inherit">
+                    <Search />
+                  </IconButton>
+                  <IconButton color="inherit">
+                    <Notifications />
+                  </IconButton>
+                  <Typography variant="body1" sx={{ ml: 2, fontWeight: 500 }}>
+                    {userName}
+                  </Typography>
+                  <Button
+                    color="secondary"
+                    onClick={() => signOut({ callbackUrl: "/login" })}
+                    sx={{ ml: 2, textTransform: "none" }}
                   >
-                    Urgent Tasks
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 1 }}>
-                    Finish OOP Project Work{" "}
-                    <Typography
-                      component="span"
-                      color="secondary"
-                      sx={{ fontWeight: 500 }}
-                    >
-                      • Today
-                    </Typography>
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 1 }}>
-                    Major Group Diary{" "}
-                    <Typography
-                      component="span"
-                      color="secondary"
-                      sx={{ fontWeight: 500 }}
-                    >
-                      • Today
-                    </Typography>
-                  </Typography>
-                </Paper>
-              </Grid>
-              {/* Weekly Calendar Widget */}
-              <Grid item xs={12} md={6}>
-                <Paper
-                  elevation={2}
-                  sx={{
-                    p: { xs: 3, sm: 4 },
-                    borderRadius: 2,
-                    backgroundColor: "#fafafa",
-                    transition: "transform 0.3s ease",
-                    "&:hover": { transform: "translateY(-4px)" },
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{ mb: 2, fontWeight: 600, letterSpacing: "-0.25px" }}
+                    Sign Out
+                  </Button>
+                </Box>
+              </Toolbar>
+            </AppBar>
+            <Toolbar />
+            {/* Main content container */}
+            <Box
+              sx={{
+                maxWidth: 1200,
+                mx: "auto",
+                px: { xs: 2, sm: 3 },
+                py: { xs: 3, sm: 4 },
+              }}
+            >
+              <Typography
+                variant="h4"
+                gutterBottom
+                sx={{ fontWeight: 700, letterSpacing: "-0.5px", mb: 1 }}
+              >
+                Welcome, {userName}!
+              </Typography>
+              <Typography
+                variant="subtitle1"
+                sx={{ mb: { xs: 2, sm: 3 }, color: "#666666" }}
+              >
+                Here is your agenda for today
+              </Typography>
+              {/* Grid Layout for Widgets */}
+              <Grid container spacing={4}>
+                {/* Urgent Tasks Widget */}
+                <Grid item xs={12} md={6}>
+                  <Paper
+                    elevation={2}
+                    sx={{
+                      p: { xs: 3, sm: 4 },
+                      borderRadius: 2,
+                      backgroundColor: "#fafafa",
+                      transition: "transform 0.3s ease",
+                      "&:hover": { transform: "translateY(-4px)" },
+                    }}
                   >
-                    Weekly Calendar
-                  </Typography>
-                  <CalendarWidget events={timetable} refresh={refresh} />
-                </Paper>
+                    <UrgentTasks />
+                  </Paper>
+                </Grid>
+                {/* Weekly Calendar Widget */}
+                <Grid item xs={12} md={6}>
+                  <Paper
+                    elevation={2}
+                    sx={{
+                      p: { xs: 3, sm: 4 },
+                      borderRadius: 2,
+                      backgroundColor: "#fafafa",
+                      transition: "transform 0.3s ease",
+                      "&:hover": { transform: "translateY(-4px)" },
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{ mb: 2, fontWeight: 600, letterSpacing: "-0.25px" }}
+                    >
+                      Weekly Calendar
+                    </Typography>
+                    <CalendarWidget
+                      events={Array.isArray(timetable) ? timetable : []}
+                      refresh={refresh}
+                    />
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
           </Box>
-        </Box>
-      </motion.div>
+        </motion.div>
+      )}
     </ProtectedRoute>
   );
 }
