@@ -2,15 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { List, ListItem, Button, Popover, Typography } from "@mui/material";
+import { List, ListItem, Button, Popover } from "@mui/material";
 import {
   Home,
   Dashboard as DashboardIcon,
   Assignment,
   CalendarToday,
-  CheckBox,
   People,
-  Chat,
   Help,
   Settings,
   Archive as ArchiveIcon,
@@ -19,13 +17,9 @@ import {
 const sidebarItems = [
   { label: "Home", route: "/home", icon: <Home /> },
   { label: "Dashboard", route: "/dashboard", icon: <DashboardIcon /> },
-  { label: "Task Manager", route: "/TaskManager", icon: <Assignment /> },
+  { label: "Goal Tracker", route: "/goal-tracker", icon: <Assignment /> },
   { label: "Timetable", route: "/timetable", icon: <CalendarToday /> },
-  { label: "Assignments", route: "/assignments", icon: <Assignment /> },
-  { label: "To-Do", route: "/todo", icon: <CheckBox /> },
-  // Direct Study Hub link
   { label: "Study Hub", route: "/studyhub", icon: <People /> },
-  // Optional nested dropdown for study-specific subpages
   {
     label: "Study Tools",
     route: "/studyhub",
@@ -34,11 +28,13 @@ const sidebarItems = [
       { label: "Study Buddy", route: "/StudyBuddy" },
       { label: "Chat Room", route: "/chatroom" },
       { label: "Calendar", route: "/calendar" },
+      { label: "Study Sessions", route: "/study-sessions" },
     ],
   },
   { label: "Help Center", route: "/helpcenter", icon: <Help /> },
   { label: "Settings", route: "/settings", icon: <Settings /> },
-  { label: "Archive", route: "/TaskManager/archive", icon: <ArchiveIcon /> },
+  // Updated Archive item
+  { label: "Archive", route: "/task-manager/archive", icon: <ArchiveIcon /> },
 ];
 
 export default function Sidebar() {

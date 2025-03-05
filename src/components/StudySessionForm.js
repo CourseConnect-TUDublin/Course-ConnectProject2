@@ -24,14 +24,17 @@ const StudySessionForm = ({ onSessionCreated }) => {
   };
 
   const handleDateChange = (newDate) => {
+    console.log("Date selected:", newDate);
     setSessionData({ ...sessionData, date: newDate });
   };
 
   const handleTimeChange = (newTime) => {
+    console.log("Time selected:", newTime);
     setSessionData({ ...sessionData, time: newTime });
   };
 
   const handleSubmit = async () => {
+    console.log("Create Session button clicked with data:", sessionData);
     if (!session) {
       toast.error("You must be logged in to create a session");
       return;
@@ -53,7 +56,7 @@ const StudySessionForm = ({ onSessionCreated }) => {
       time.getMinutes(),
       time.getSeconds()
     );
-
+    console.log("Computed start date:", start);
     if (isNaN(start.getTime())) {
       toast.error("Invalid date or time selected");
       return;
@@ -73,6 +76,7 @@ const StudySessionForm = ({ onSessionCreated }) => {
       student: userId,
     };
 
+    console.log("Payload for session creation:", payload);
     setLoading(true);
     try {
       const res = await fetch("/api/sessions", {
@@ -80,10 +84,11 @@ const StudySessionForm = ({ onSessionCreated }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      console.log("Response status:", res.status);
       const data = await res.json();
+      console.log("Response data:", data);
       if (data.success) {
         toast.success("Study session created successfully!");
-        // Reset the form fields.
         setSessionData({
           subject: "",
           date: null,
@@ -91,14 +96,13 @@ const StudySessionForm = ({ onSessionCreated }) => {
           location: "",
           message: "",
         });
-        // Trigger parent callback to refresh the study sessions list.
         if (onSessionCreated) onSessionCreated();
       } else {
         toast.error("Failed to create session: " + data.error);
       }
     } catch (error) {
       toast.error("Error creating session");
-      console.error(error);
+      console.error("Error in handleSubmit:", error);
     } finally {
       setLoading(false);
     }
