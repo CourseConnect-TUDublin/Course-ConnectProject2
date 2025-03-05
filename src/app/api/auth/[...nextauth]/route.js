@@ -6,7 +6,7 @@ import dbConnect from "../../../../lib/dbConnect";
 import User from "../../../../models/User";
 import bcrypt from "bcrypt";
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -62,6 +62,8 @@ const handler = NextAuth({
   pages: {
     signIn: "/login" // Ensure your login page is at this route.
   }
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

@@ -4,7 +4,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   Container,
   Grid,
-  Paper,
+  Card,
+  CardContent,
+  CardActions,
   Typography,
   TextField,
   Button,
@@ -18,8 +20,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  FormControlLabel,
-  Switch,
+  Stack,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -40,7 +41,7 @@ const reorder = (list, startIndex, endIndex) => {
   return result;
 };
 
-// TaskCard component renders an individual task as a draggable card.
+// Modern TaskCard component using MUI Card with traffic light accent
 function TaskCard({ task, index, onDelete, onEdit, onArchive }) {
   let borderColor, bgColor;
   switch (task.status) {
@@ -63,47 +64,50 @@ function TaskCard({ task, index, onDelete, onEdit, onArchive }) {
   return (
     <Draggable draggableId={String(task._id)} index={index}>
       {(provided) => (
-        <Paper
+        <motion.div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          sx={{
-            p: 2,
-            mb: 2,
-            borderLeft: `5px solid ${borderColor}`,
-            backgroundColor: bgColor,
-            transition: "transform 0.3s ease, box-shadow 0.3s ease",
-            "&:hover": { transform: "translateY(-4px)", boxShadow: 6 },
-            position: "relative",
-          }}
+          whileHover={{ scale: 1.02 }}
+          style={{ marginBottom: "16px", ...provided.draggableProps.style }}
         >
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              {task.title}
-            </Typography>
-            <Box>
-              <IconButton size="small" onClick={() => onEdit(task)}>
-                <EditIcon fontSize="small" />
-              </IconButton>
-              <IconButton size="small" onClick={() => onDelete(task._id)}>
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-              {task.status === "green" && (
-                <IconButton size="small" onClick={() => onArchive(task._id)}>
-                  <ArchiveIcon fontSize="small" />
-                </IconButton>
+          <Card
+            sx={{
+              borderLeft: `6px solid ${borderColor}`,
+              backgroundColor: bgColor,
+              boxShadow: 3,
+            }}
+          >
+            <CardContent sx={{ p: 2 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  {task.title}
+                </Typography>
+                <Box>
+                  <IconButton size="small" onClick={() => onEdit(task)}>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => onDelete(task._id)}>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                  {task.status === "green" && (
+                    <IconButton size="small" onClick={() => onArchive(task._id)}>
+                      <ArchiveIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </Box>
+              </Stack>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                {task.description}
+              </Typography>
+              {task.dueDate && (
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                  Due: {new Date(task.dueDate).toLocaleDateString()}
+                </Typography>
               )}
-            </Box>
-          </Box>
-          <Typography variant="body2" color="text.secondary">
-            {task.description}
-          </Typography>
-          {task.dueDate && (
-            <Typography variant="caption" color="text.secondary">
-              Due: {new Date(task.dueDate).toLocaleDateString()}
-            </Typography>
-          )}
-        </Paper>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
     </Draggable>
   );
@@ -115,7 +119,7 @@ export default function TaskManager() {
 
   // Tasks stored as an object keyed by status.
   const [tasks, setTasks] = useState({ red: [], amber: [], green: [] });
-  // New task form state (we now include an 'order' field; new tasks get order 0, then appended)
+  // New task form state
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -129,10 +133,10 @@ export default function TaskManager() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
 
-  // Fetch tasks from backend API
+  // Fetch tasks from backend API with cache busting
   const fetchTasks = useCallback(async () => {
     try {
-      const res = await fetch("/api/tasks");
+      const res = await fetch("/api/tasks?ts=" + new Date().getTime(), { cache: "no-store" });
       const data = await res.json();
       if (data.success) {
         const grouped = { red: [], amber: [], green: [] };
@@ -153,8 +157,30 @@ export default function TaskManager() {
   }, []);
 
   useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+    if (userId) {
+      fetchTasks();
+    } else {
+      console.log("User ID not available yet.");
+    }
+  }, [fetchTasks, userId]);
+
+  // Filter and sort tasks based on search and sort order
+  const filteredTasks = (() => {
+    const filtered = {};
+    Object.keys(tasks).forEach((status) => {
+      filtered[status] = tasks[status]
+        .filter(
+          (task) =>
+            task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            task.description.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .sort((a, b) => {
+          if (a.order === undefined || b.order === undefined) return 0;
+          return sortOrder === "asc" ? a.order - b.order : b.order - a.order;
+        });
+    });
+    return filtered;
+  })();
 
   // Add new task via backend API
   const handleAddTask = async () => {
@@ -167,7 +193,7 @@ export default function TaskManager() {
       alert("User information is still loading. Please try again.");
       return;
     }
-    // Determine the order: you can set order as the current length of the column
+    // Determine order: current length of the column
     const columnTasks = tasks[newTask.status] || [];
     const order = columnTasks.length;
     const taskToAdd = {
@@ -176,21 +202,20 @@ export default function TaskManager() {
       userId,
       order,
     };
-    console.log("Adding task:", taskToAdd);
     try {
       const res = await fetch("/api/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(taskToAdd),
       });
-      const data = await res.json();
-      if (data.success) {
+      const responseData = await res.json();
+      if (responseData.success) {
         toast.success("Task added successfully!");
-        fetchTasks();
+        await fetchTasks();
         setNewTask({ title: "", description: "", status: "red", dueDate: "", order: 0 });
       } else {
-        console.error("Failed to add task:", data.error);
-        toast.error("Failed to add task: " + data.error);
+        console.error("Failed to add task:", responseData.error);
+        toast.error("Failed to add task: " + responseData.error);
       }
     } catch (error) {
       console.error("Error adding task:", error);
@@ -207,7 +232,7 @@ export default function TaskManager() {
       const data = await res.json();
       if (data.success) {
         toast.success("Task deleted successfully!");
-        fetchTasks();
+        await fetchTasks();
       }
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -215,9 +240,8 @@ export default function TaskManager() {
     }
   };
 
-  // Archive task (for now, simply delete it)
+  // Archive task (update the task's archived field)
   const handleArchiveTask = async (id) => {
-    // Retrieve the task you want to archive first (you might need to find it from your tasks state)
     const taskToArchive = Object.values(tasks).flat().find((t) => t._id === id);
     if (!taskToArchive) return;
     const archivedTask = { ...taskToArchive, archived: true };
@@ -230,14 +254,13 @@ export default function TaskManager() {
       const data = await res.json();
       if (data.success) {
         toast.success("Task archived successfully!");
-        fetchTasks();
+        await fetchTasks();
       }
     } catch (error) {
       console.error("Error archiving task:", error);
       toast.error("Error archiving task.");
     }
   };
-  
 
   // Open edit modal
   const handleEditTask = (task) => {
@@ -257,7 +280,7 @@ export default function TaskManager() {
       if (data.success) {
         toast.success("Task updated successfully!");
         setEditingTask(null);
-        fetchTasks();
+        await fetchTasks();
       }
     } catch (error) {
       console.error("Error updating task:", error);
@@ -265,27 +288,8 @@ export default function TaskManager() {
     }
   };
 
-  // Filtering and sorting tasks
-  const filterAndSortTasks = (tasksObj) => {
-    const filtered = {};
-    Object.keys(tasksObj).forEach((status) => {
-      filtered[status] = tasksObj[status]
-        .filter(
-          (task) =>
-            task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            task.description.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .sort((a, b) => {
-          if (a.order === undefined || b.order === undefined) return 0;
-          return sortOrder === "asc" ? a.order - b.order : b.order - a.order;
-        });
-    });
-    return filtered;
-  };
-
   // Update backend order for tasks in a specific column
   const updateColumnOrder = async (status, items) => {
-    // Loop through the items and update their order field
     for (let i = 0; i < items.length; i++) {
       const updatedTask = { ...items[i], order: i };
       try {
@@ -325,7 +329,6 @@ export default function TaskManager() {
       }));
       await updateColumnOrder(source.droppableId, sourceItems);
       await updateColumnOrder(destination.droppableId, destinationItems);
-      // Update moved task's status on the backend
       try {
         await fetch("/api/tasks", {
           method: "PUT",
@@ -340,8 +343,6 @@ export default function TaskManager() {
     }
   };
 
-  const filteredTasks = filterAndSortTasks(tasks);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -350,19 +351,20 @@ export default function TaskManager() {
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
+        <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
           Task Manager
         </Typography>
         {/* Search and Sort Controls */}
-        <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between" }}>
+        <Box sx={{ mb: 3, display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, justifyContent: "space-between" }}>
           <TextField
             label="Search Tasks"
             variant="outlined"
             size="small"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{ flex: 1 }}
           />
-          <FormControl variant="outlined" size="small" sx={{ width: 150 }}>
+          <FormControl variant="outlined" size="small" sx={{ width: 180 }}>
             <InputLabel>Sort by Order</InputLabel>
             <Select
               label="Sort by Order"
@@ -376,84 +378,71 @@ export default function TaskManager() {
         </Box>
 
         {/* New Task Form */}
-        <Paper
-          sx={{
-            p: 3,
-            mb: 4,
-            borderRadius: 2,
-            backgroundColor: "#fafafa",
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Add New Task
-          </Typography>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={3}>
-              <TextField
-                label="Title"
-                name="title"
-                fullWidth
-                value={newTask.title}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, title: e.target.value })
-                }
-              />
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <TextField
-                label="Description"
-                name="description"
-                fullWidth
-                value={newTask.description}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, description: e.target.value })
-                }
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <TextField
-                label="Due Date"
-                name="dueDate"
-                type="date"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                value={newTask.dueDate}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, dueDate: e.target.value })
-                }
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <FormControl fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  name="status"
-                  value={newTask.status}
-                  label="Status"
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, status: e.target.value })
-                  }
+        <Card sx={{ p: 3, mb: 4, borderRadius: 2, backgroundColor: "#fafafa" }}>
+          <CardContent>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Add New Task
+            </Typography>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  label="Title"
+                  name="title"
+                  fullWidth
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  label="Description"
+                  name="description"
+                  fullWidth
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <TextField
+                  label="Due Date"
+                  name="dueDate"
+                  type="date"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  value={newTask.dueDate}
+                  onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <FormControl fullWidth>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    name="status"
+                    value={newTask.status}
+                    label="Status"
+                    onChange={(e) => setNewTask({ ...newTask, status: e.target.value })}
+                  >
+                    <MenuItem value="red">Red</MenuItem>
+                    <MenuItem value="amber">Amber</MenuItem>
+                    <MenuItem value="green">Green</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={handleAddTask}
+                  startIcon={<AddIcon />}
+                  sx={{ height: "100%" }}
                 >
-                  <MenuItem value="red">Red</MenuItem>
-                  <MenuItem value="amber">Amber</MenuItem>
-                  <MenuItem value="green">Green</MenuItem>
-                </Select>
-              </FormControl>
+                  Add
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item xs={12} sm={2}>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                onClick={handleAddTask}
-                startIcon={<AddIcon />}
-                sx={{ height: "100%" }}
-              >
-                Add
-              </Button>
-            </Grid>
-          </Grid>
-        </Paper>
+          </CardContent>
+        </Card>
 
         {/* Drag and Drop Context for Task Columns */}
         <DragDropContext onDragEnd={onDragEnd}>
@@ -464,12 +453,7 @@ export default function TaskManager() {
                   variant="h6"
                   sx={{
                     mb: 2,
-                    color:
-                      status === "red"
-                        ? "#e53935"
-                        : status === "amber"
-                        ? "#fb8c00"
-                        : "#43a047",
+                    color: status === "red" ? "#e53935" : status === "amber" ? "#fb8c00" : "#43a047",
                   }}
                 >
                   {status === "red"
@@ -478,7 +462,7 @@ export default function TaskManager() {
                     ? "Amber - In Progress"
                     : "Green - Completed"}
                 </Typography>
-                <Droppable droppableId={status}>
+                <Droppable droppableId={status} isDropDisabled={false}>
                   {(provided, snapshot) => (
                     <Box
                       ref={provided.innerRef}
@@ -521,9 +505,7 @@ export default function TaskManager() {
               fullWidth
               margin="dense"
               value={editingTask.title}
-              onChange={(e) =>
-                setEditingTask({ ...editingTask, title: e.target.value })
-              }
+              onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
             />
             <TextField
               label="Description"
@@ -531,9 +513,7 @@ export default function TaskManager() {
               fullWidth
               margin="dense"
               value={editingTask.description}
-              onChange={(e) =>
-                setEditingTask({ ...editingTask, description: e.target.value })
-              }
+              onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
             />
             <TextField
               label="Due Date"
@@ -547,9 +527,7 @@ export default function TaskManager() {
                   ? new Date(editingTask.dueDate).toISOString().split("T")[0]
                   : ""
               }
-              onChange={(e) =>
-                setEditingTask({ ...editingTask, dueDate: e.target.value })
-              }
+              onChange={(e) => setEditingTask({ ...editingTask, dueDate: e.target.value })}
             />
             <FormControl fullWidth margin="dense">
               <InputLabel>Status</InputLabel>
@@ -557,9 +535,7 @@ export default function TaskManager() {
                 name="status"
                 value={editingTask.status}
                 label="Status"
-                onChange={(e) =>
-                  setEditingTask({ ...editingTask, status: e.target.value })
-                }
+                onChange={(e) => setEditingTask({ ...editingTask, status: e.target.value })}
               >
                 <MenuItem value="red">Red</MenuItem>
                 <MenuItem value="amber">Amber</MenuItem>

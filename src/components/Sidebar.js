@@ -12,11 +12,13 @@ import {
   Help,
   Settings,
   Archive as ArchiveIcon,
+  List as ListIcon,
 } from "@mui/icons-material";
 
 const sidebarItems = [
   { label: "Home", route: "/home", icon: <Home /> },
   { label: "Dashboard", route: "/dashboard", icon: <DashboardIcon /> },
+  { label: "Task Manager", route: "/TaskManager", icon: <ListIcon /> },
   { label: "Goal Tracker", route: "/goal-tracker", icon: <Assignment /> },
   { label: "Timetable", route: "/timetable", icon: <CalendarToday /> },
   { label: "Study Hub", route: "/studyhub", icon: <People /> },
@@ -33,8 +35,7 @@ const sidebarItems = [
   },
   { label: "Help Center", route: "/helpcenter", icon: <Help /> },
   { label: "Settings", route: "/settings", icon: <Settings /> },
-  // Updated Archive item
-  { label: "Archive", route: "/task-manager/archive", icon: <ArchiveIcon /> },
+  { label: "Archive", route: "/TaskManager/archive", icon: <ArchiveIcon /> },
 ];
 
 export default function Sidebar() {

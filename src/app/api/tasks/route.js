@@ -1,19 +1,24 @@
-import { connectToDatabase } from '../../../lib/dbConnect.js';
-import Task from '../../../models/Task.js';
-import mongoose from 'mongoose';
+import { connectToDatabase } from "src/lib/dbConnect.js";
+import Task from "src/models/Task.js";
+import mongoose from "mongoose";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "src/app/api/auth/[...nextauth]/route.js";
 
 export async function GET(req) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Unauthorized" }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
   try {
     await connectToDatabase();
     const { searchParams } = new URL(req.url);
     const archivedParam = searchParams.get("archived");
-    let filter = {};
-    if (archivedParam === "true") {
-      filter.archived = true;
-    } else {
-      // By default, return only active tasks (not archived)
-      filter.archived = false;
-    }
+    // Filter tasks to include only those belonging to the current user
+    let filter = { userId: session.user.id };
+    filter.archived = archivedParam === "true";
     const tasks = await Task.find(filter);
     return new Response(
       JSON.stringify({ success: true, data: tasks }),
@@ -29,16 +34,17 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Unauthorized" }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
   try {
     await connectToDatabase();
     const body = await req.json();
     // Validate required fields...
-    if (!body.userId) {
-      return new Response(
-        JSON.stringify({ success: false, error: "User ID is required" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
     if (!body.dueDate) {
       return new Response(
         JSON.stringify({ success: false, error: "Due date is required" }),
@@ -52,13 +58,8 @@ export async function POST(req) {
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
-    if (!mongoose.Types.ObjectId.isValid(body.userId)) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Invalid user ID format" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-    const userId = new mongoose.Types.ObjectId(body.userId);
+    // Override any submitted userId with the current session's user ID
+    const userId = new mongoose.Types.ObjectId(session.user.id);
     const newTask = new Task({
       title: body.title,
       description: body.description,
@@ -87,6 +88,13 @@ export async function POST(req) {
 }
 
 export async function PUT(req) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Unauthorized" }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
   try {
     await connectToDatabase();
     const body = await req.json();
@@ -121,6 +129,13 @@ export async function PUT(req) {
 }
 
 export async function DELETE(req) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Unauthorized" }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
   try {
     await connectToDatabase();
     const { searchParams } = new URL(req.url);

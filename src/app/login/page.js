@@ -26,6 +26,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const callbackUrl = "/dashboard"; // Change this to your preferred redirect route
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -34,12 +36,13 @@ export default function Login() {
       redirect: false,
       email,
       password,
+      callbackUrl,
     });
     setLoading(false);
     if (result?.error) {
       setError("Invalid email or password.");
     } else {
-      router.push("/dashboard");
+      router.push(result.url || callbackUrl);
     }
   };
 
@@ -127,7 +130,7 @@ export default function Login() {
             variant="outlined"
             fullWidth
             sx={{ mt: 1, mb: 1, textTransform: "none" }}
-            onClick={() => signIn("google")}
+            onClick={() => signIn("google", { callbackUrl })}
           >
             Sign in with Google
           </Button>
@@ -135,7 +138,7 @@ export default function Login() {
             variant="outlined"
             fullWidth
             sx={{ mt: 1, mb: 1, textTransform: "none" }}
-            onClick={() => signIn("apple")}
+            onClick={() => signIn("apple", { callbackUrl })}
           >
             Sign in with Apple
           </Button>
