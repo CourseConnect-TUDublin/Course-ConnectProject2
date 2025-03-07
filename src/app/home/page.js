@@ -53,17 +53,19 @@ export default function HomePage() {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
-      <Box sx={{ backgroundColor: "#ffffff" }}>
+      {/* Full viewport container with matching grey background */}
+      <Box sx={{ backgroundColor: "#808080", minHeight: "100vh", p: 0, m: 0 }}>
         <CssBaseline />
+
         {/* Top Navigation */}
         <AppBar
           position="fixed"
           elevation={0}
           sx={{
             width: "100%",
-            backgroundColor: "#ffffff",
-            color: "#000000",
-            borderBottom: "1px solid #eaeaea",
+            backgroundColor: "#333333",
+            color: "#ffffff",
+            borderBottom: "1px solid #555555",
           }}
         >
           <Toolbar sx={{ justifyContent: "space-between" }}>
@@ -81,7 +83,7 @@ export default function HomePage() {
                 {userName}
               </Typography>
               <Button
-                color="secondary"
+                color="inherit"
                 onClick={() => signOut({ callbackUrl: "/login" })}
                 sx={{ ml: 2, textTransform: "none" }}
               >
@@ -101,27 +103,30 @@ export default function HomePage() {
             py: { xs: 3, sm: 4 },
           }}
         >
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, letterSpacing: "-0.5px", mb: 1 }}>
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{ fontWeight: 700, letterSpacing: "-0.5px", mb: 1, color: "#ffffff" }}
+          >
             Welcome, {userName}!
           </Typography>
-          <Typography variant="subtitle1" sx={{ mb: { xs: 2, sm: 3 }, color: "#666666" }}>
+          <Typography variant="subtitle1" sx={{ mb: { xs: 2, sm: 3 }, color: "#dddddd" }}>
             Explore your tools:
           </Typography>
 
           {/* Widget Grid */}
           <Grid container spacing={4}>
             {toolItems.map((tool) => (
-              <Grid item xs={12} sm={6} md={4} key={tool.label}>
-                <Link href={tool.route} passHref legacyBehavior style={{ textDecoration: "none" }}>
+              <Grid item xs={12} sm={6} md={tool.label === "Timetable" ? 8 : 4} key={tool.label}>
+                <Link href={tool.route} style={{ textDecoration: "none" }}>
                   <Paper
-                    component="a"
-                    elevation={3}
+                    elevation={6}
                     sx={{
-                      p: { xs: 3, sm: 4 },
+                      p: { xs: 4, sm: 5 },
                       borderRadius: 2,
-                      backgroundColor: "#fafafa",
+                      backgroundColor: "#ffffff",
                       transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                      "&:hover": { transform: "translateY(-4px)", boxShadow: 6 },
+                      "&:hover": { transform: "translateY(-4px)", boxShadow: 10 },
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
@@ -130,8 +135,8 @@ export default function HomePage() {
                       height: "100%",
                     }}
                   >
-                    <Box sx={{ mb: 2 }}>{tool.icon}</Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                    <Box sx={{ mb: 2, color: "#333333" }}>{tool.icon}</Box>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#333333" }}>
                       {tool.label}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">

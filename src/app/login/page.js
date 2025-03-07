@@ -50,11 +50,13 @@ export default function Login() {
     <Box
       sx={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #3f51b5, #1a237e)",
+        width: "100%",
+        backgroundColor: "#808080", // Grey background
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        p: 2,
+        p: 0,
+        m: 0,
       }}
     >
       <Container
@@ -62,12 +64,12 @@ export default function Login() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
-        maxWidth="xs"
+        maxWidth="sm" // Increase container width to "sm" for a larger form
       >
         <Paper
           elevation={10}
           sx={{
-            p: 4,
+            p: 6, // Increase padding for a bigger form
             borderRadius: 3,
             display: "flex",
             flexDirection: "column",
@@ -118,7 +120,7 @@ export default function Login() {
               label="Remember me"
               sx={{ mt: 1 }}
             />
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3 }}>
               {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
             </Button>
           </Box>

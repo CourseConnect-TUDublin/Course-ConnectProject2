@@ -15,20 +15,19 @@ import {
 import { Search, Notifications } from "@mui/icons-material";
 import { useSession, signOut } from "next-auth/react";
 import CalendarWidget from "../../components/CalendarWidget";
-import UrgentTasks from "../../components/UrgentTasks"; // New component for urgent tasks
+import UrgentTasks from "../../components/UrgentTasks";
 import { motion } from "framer-motion";
-import ProtectedRoute from "../../components/ProtectedRoute"; // This component handles the session check
+import ProtectedRoute from "../../components/ProtectedRoute";
 
 export default function CourseConnectDashboard() {
   const { data: session, status } = useSession();
 
-  // Always call hooks unconditionally.
+  // Timetable state for CalendarWidget
   const [timetable, setTimetable] = useState([]);
   const [refresh, setRefresh] = useState(Date.now());
 
   const fetchTimetable = useCallback(async () => {
     try {
-      // Use session?.user?.id (or session?.user?.sub if that's set)
       const userId = session?.user?.id || session?.user?.sub;
       const res = await fetch(`/api/timetable?userId=${userId}`, {
         method: "GET",
@@ -61,7 +60,9 @@ export default function CourseConnectDashboard() {
   return (
     <ProtectedRoute>
       {status === "loading" ? (
-        <div>Loading...</div>
+        <Box sx={{ p: 4, textAlign: "center" }}>
+          <Typography>Loading...</Typography>
+        </Box>
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -69,7 +70,7 @@ export default function CourseConnectDashboard() {
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
         >
-          <Box sx={{ backgroundColor: "#ffffff" }}>
+          <Box sx={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
             <CssBaseline />
             {/* Top Navigation */}
             <AppBar
@@ -107,7 +108,8 @@ export default function CourseConnectDashboard() {
               </Toolbar>
             </AppBar>
             <Toolbar />
-            {/* Main content container */}
+
+            {/* Main Content Container */}
             <Box
               sx={{
                 maxWidth: 1200,
@@ -119,48 +121,84 @@ export default function CourseConnectDashboard() {
               <Typography
                 variant="h4"
                 gutterBottom
-                sx={{ fontWeight: 700, letterSpacing: "-0.5px", mb: 1 }}
+                sx={{
+                  fontWeight: 700,
+                  letterSpacing: "-0.5px",
+                  mb: 1,
+                  fontSize: { xs: "1.75rem", sm: "2.125rem" }, // responsive typography
+                }}
               >
                 Welcome, {userName}!
               </Typography>
               <Typography
                 variant="subtitle1"
-                sx={{ mb: { xs: 2, sm: 3 }, color: "#666666" }}
+                sx={{
+                  mb: { xs: 2, sm: 3 },
+                  color: "#666666",
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                }}
               >
                 Here is your agenda for today
               </Typography>
-              {/* Grid Layout for Widgets */}
+
+              {/* Widget Grid */}
               <Grid container spacing={4}>
                 {/* Urgent Tasks Widget */}
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <Paper
-                    elevation={2}
+                    elevation={4}
                     sx={{
                       p: { xs: 3, sm: 4 },
                       borderRadius: 2,
-                      backgroundColor: "#fafafa",
-                      transition: "transform 0.3s ease",
-                      "&:hover": { transform: "translateY(-4px)" },
+                      backgroundColor: "#ffe6e6", // light red tint to indicate urgency
+                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      "&:hover": { transform: "translateY(-4px)", boxShadow: 8 },
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
                     }}
                   >
+                    <Box
+                      sx={{
+                        mb: 2,
+                        px: 1,
+                        py: 0.5,
+                        backgroundColor: "#ffcccc",
+                        borderRadius: 1,
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 700, color: "#b71c1c" }}
+                      >
+                        Urgent Tasks
+                      </Typography>
+                    </Box>
                     <UrgentTasks />
                   </Paper>
                 </Grid>
                 {/* Weekly Calendar Widget */}
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={8}>
                   <Paper
-                    elevation={2}
+                    elevation={4}
                     sx={{
                       p: { xs: 3, sm: 4 },
                       borderRadius: 2,
                       backgroundColor: "#fafafa",
-                      transition: "transform 0.3s ease",
-                      "&:hover": { transform: "translateY(-4px)" },
+                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      "&:hover": { transform: "translateY(-4px)", boxShadow: 8 },
+                      height: "100%",
                     }}
                   >
                     <Typography
                       variant="h6"
-                      sx={{ mb: 2, fontWeight: 600, letterSpacing: "-0.25px" }}
+                      sx={{
+                        mb: 2,
+                        fontWeight: 600,
+                        letterSpacing: "-0.25px",
+                        color: "#333333",
+                        fontSize: { xs: "1.125rem", sm: "1.5rem" },
+                      }}
                     >
                       Weekly Calendar
                     </Typography>
