@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Box, Typography } from '@mui/material';
-import SessionRequestForm from '../../../components/SessionRequestForm'; // Adjust the path as needed
+import SessionRequestForm from '../../../../components/SessionRequestForm'; // Adjust the path as needed
 
 export default function StudyBuddyProfile() {
   const params = useParams();

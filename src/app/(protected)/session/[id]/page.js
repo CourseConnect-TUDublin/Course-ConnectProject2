@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Box, Typography, Paper } from '@mui/material';
-import Chat from '../../../components/Chat';
+import Chat from '../../../../components/Chat';
 import { useSession } from 'next-auth/react';
 
 export default function SessionPage() {
