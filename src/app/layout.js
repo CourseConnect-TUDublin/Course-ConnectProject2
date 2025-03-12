@@ -10,6 +10,12 @@ export const metadata = {
   description: "Modern Course Connect Application",
 };
 
+// Export viewport settings separately
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
@@ -17,7 +23,6 @@ export default function RootLayout({ children }) {
         <ClientProviders>
           <CssBaseline />
           <SplashScreen>
-            {/* No sidebar here */}
             <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
               <Header />
               <Toolbar />
