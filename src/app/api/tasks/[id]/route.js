@@ -1,4 +1,4 @@
-import { connectToDatabase } from "src/lib/dbConnect.js";
+import { connectToDatabase } from "@/mocks/lib/dbConnect.js";
 import Task from "src/models/Task.js";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth/next";

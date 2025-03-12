@@ -36,7 +36,10 @@ export async function POST(request) {
     return new Response(JSON.stringify(newSession), { status: 201 });
   } catch (error) {
     console.error("Error creating session:", error);
-    return new Response(JSON.stringify({ error: error.message || "Failed to create session" }), { status: 400 });
+    return new Response(
+      JSON.stringify({ error: error.message || "Failed to create session" }),
+      { status: 400 }
+    );
   }
 }
 
@@ -51,6 +54,9 @@ export async function GET() {
     return new Response(JSON.stringify(sessions), { status: 200 });
   } catch (error) {
     console.error("Error fetching sessions:", error);
-    return new Response(JSON.stringify({ error: "Failed to fetch sessions" }), { status: 400 });
+    return new Response(
+      JSON.stringify({ error: error.message || "Failed to fetch sessions" }),
+      { status: 400 }
+    );
   }
 }

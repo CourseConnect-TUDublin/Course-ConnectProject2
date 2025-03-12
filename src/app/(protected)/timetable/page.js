@@ -24,7 +24,7 @@ import { useSession, signIn } from "next-auth/react";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import CalendarWidget from "../../components/CalendarWidget";
+import CalendarWidget from "../../../components/CalendarWidget";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 

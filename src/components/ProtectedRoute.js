@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { CircularProgress } from "@mui/material";
-import LoginSplash from "../app/splash/LoginSplash"; // Updated import path
+import LoginSplash from "../app/(public)/splash/LoginSplash"; // Updated import path
 
 export default function ProtectedRoute({ children }) {
   const { data: session, status } = useSession();

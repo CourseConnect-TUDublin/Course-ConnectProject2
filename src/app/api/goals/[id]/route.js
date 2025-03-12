@@ -1,6 +1,6 @@
 // /src/app/api/goals/[id]/route.js
 import { NextResponse } from "next/server";
-import { goals } from "../../../../lib/goalsStore";
+import { goals } from "../../../../mocks/lib/goalsStore";
 
 export async function PUT(request, { params }) {
   try {

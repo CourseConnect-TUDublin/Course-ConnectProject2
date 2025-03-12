@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Box, Container, Typography, Paper } from "@mui/material";
-import StudyBuddyList from "../../components/StudyBuddyList";
+import StudyBuddyList from "../../../components/StudyBuddyList";
 import { motion } from "framer-motion";
 
 export default function StudyBuddyPage() {
@@ -35,7 +35,7 @@ export default function StudyBuddyPage() {
             gutterBottom
             sx={{ fontWeight: "bold", color: "#3f51b5" }}
           >
-            Study Buddy System
+            Study Buddy
           </Typography>
           <Typography
             variant="h6"

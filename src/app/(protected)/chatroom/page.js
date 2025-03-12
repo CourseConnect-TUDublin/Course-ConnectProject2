@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Container, Box, Typography } from "@mui/material";
-import Chat from "../../components/Chat";
+import Chat from "../../../components/Chat";
 import { useSession } from "next-auth/react";
 
 export default function ChatRoomPage() {

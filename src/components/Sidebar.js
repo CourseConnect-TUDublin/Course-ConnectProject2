@@ -1,8 +1,17 @@
 "use client";
-
 import React, { useState } from "react";
 import Link from "next/link";
-import { List, ListItem, Button, Popover } from "@mui/material";
+import {
+  List,
+  ListItem,
+  Button,
+  Popover,
+  Drawer,
+  IconButton,
+  useMediaQuery,
+  useTheme,
+  Box,
+} from "@mui/material";
 import {
   Home,
   Dashboard as DashboardIcon,
@@ -14,6 +23,7 @@ import {
   Archive as ArchiveIcon,
   List as ListIcon,
 } from "@mui/icons-material";
+import { useSession } from "next-auth/react";
 
 const sidebarItems = [
   { label: "Home", route: "/home", icon: <Home /> },
@@ -39,8 +49,16 @@ const sidebarItems = [
 ];
 
 export default function Sidebar() {
+  // Always call hooks at the top level
+  const { data: session } = useSession();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeItem, setActiveItem] = useState(null);
+
+  // If no session, do not render anything
+  if (!session) return null;
 
   const handleMouseEnter = (event, item) => {
     if (item.subItems) {
@@ -56,14 +74,15 @@ export default function Sidebar() {
 
   const open = Boolean(anchorEl);
 
-  return (
+  // Sidebar content: extracted to reuse in Drawer (mobile) and permanent (desktop)
+  const sidebarContent = (
     <List>
       {sidebarItems.map((item) => (
         <ListItem
           key={item.label}
           disablePadding
-          onMouseEnter={(e) => handleMouseEnter(e, item)}
-          onMouseLeave={handleMouseLeave}
+          onMouseEnter={(e) => !isMobile && handleMouseEnter(e, item)}
+          onMouseLeave={() => !isMobile && handleMouseLeave()}
         >
           <Link href={item.route} passHref legacyBehavior>
             <Button
@@ -77,11 +96,12 @@ export default function Sidebar() {
                 transition: "background-color 0.3s ease",
                 "&:hover": { backgroundColor: "#f0f0f0" },
               }}
+              onClick={() => isMobile && setMobileOpen(false)} // close drawer on mobile after click
             >
               {item.label}
             </Button>
           </Link>
-          {item.subItems && activeItem?.label === item.label && (
+          {item.subItems && activeItem?.label === item.label && !isMobile && (
             <Popover
               open={open}
               anchorEl={anchorEl}
@@ -119,5 +139,36 @@ export default function Sidebar() {
         </ListItem>
       ))}
     </List>
+  );
+
+  return (
+    <>
+      {isMobile ? (
+        // On mobile, show a hamburger icon that toggles the drawer
+        <>
+          <IconButton
+            onClick={() => setMobileOpen(true)}
+            sx={{ position: "fixed", top: 16, left: 16, zIndex: 1300 }}
+          >
+            <ListIcon />
+          </IconButton>
+          <Drawer
+            anchor="left"
+            open={mobileOpen}
+            onClose={() => setMobileOpen(false)}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+          >
+            <Box sx={{ width: 250 }} role="presentation" onClick={() => setMobileOpen(false)}>
+              {sidebarContent}
+            </Box>
+          </Drawer>
+        </>
+      ) : (
+        // On desktop, show the sidebar permanently
+        <Box sx={{ width: 250 }}>{sidebarContent}</Box>
+      )}
+    </>
   );
 }

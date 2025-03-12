@@ -1,5 +1,5 @@
 // src/app/api/register/route.js
-import dbConnect from '../../../lib/dbConnect.js';
+import dbConnect from '../../../mocks/lib/dbConnect.js';
 import User from '../../../models/User.js';
 import bcrypt from 'bcrypt';
 

@@ -14,10 +14,10 @@ import {
 } from "@mui/material";
 import { Search, Notifications } from "@mui/icons-material";
 import { useSession, signOut } from "next-auth/react";
-import CalendarWidget from "../../components/CalendarWidget";
-import UrgentTasks from "../../components/UrgentTasks";
+import CalendarWidget from "../../../components/CalendarWidget";
+import UrgentTasks from "../../../components/UrgentTasks";
 import { motion } from "framer-motion";
-import ProtectedRoute from "../../components/ProtectedRoute";
+import ProtectedRoute from "../../../components/ProtectedRoute";
 
 export default function CourseConnectDashboard() {
   const { data: session, status } = useSession();
@@ -125,7 +125,7 @@ export default function CourseConnectDashboard() {
                   fontWeight: 700,
                   letterSpacing: "-0.5px",
                   mb: 1,
-                  fontSize: { xs: "1.75rem", sm: "2.125rem" }, // responsive typography
+                  fontSize: { xs: "1.75rem", sm: "2.125rem" },
                 }}
               >
                 Welcome, {userName}!
@@ -150,7 +150,7 @@ export default function CourseConnectDashboard() {
                     sx={{
                       p: { xs: 3, sm: 4 },
                       borderRadius: 2,
-                      backgroundColor: "#ffe6e6", // light red tint to indicate urgency
+                      backgroundColor: "#ffe6e6",
                       transition: "transform 0.3s ease, box-shadow 0.3s ease",
                       "&:hover": { transform: "translateY(-4px)", boxShadow: 8 },
                       height: "100%",

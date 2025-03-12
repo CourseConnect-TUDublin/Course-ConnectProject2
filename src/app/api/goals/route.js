@@ -1,6 +1,6 @@
 // /app/api/goals/route.js
 import { NextResponse } from "next/server";
-import { goals } from "../../../lib/goalsStore";
+import { goals } from "../../../mocks/lib/goalsStore";
 
 export async function GET() {
   // Return all goals

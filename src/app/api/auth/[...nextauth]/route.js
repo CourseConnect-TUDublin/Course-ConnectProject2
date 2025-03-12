@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
-import dbConnect from "../../../../lib/dbConnect";
+import dbConnect from "../../../../mocks/lib/dbConnect";
 import User from "../../../../models/User";
 import bcrypt from "bcrypt";
 
