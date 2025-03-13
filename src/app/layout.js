@@ -3,8 +3,15 @@
 import "./globals.css";
 import ClientProviders from "../components/ClientProviders";
 import Header from "../components/Header";
+import ConditionalSidebar from "../components/ConditionalSidebar"; // use sidebar content here
 import SplashScreen from "../components/SplashScreen";
-import { CssBaseline, Box, Toolbar, Drawer, IconButton } from "@mui/material";
+import {
+  CssBaseline,
+  Box,
+  Toolbar,
+  Drawer,
+  IconButton
+} from "@mui/material";
 import { Menu } from "@mui/icons-material";
 import { useState } from "react";
 import { useTheme, useMediaQuery } from "@mui/material";
@@ -20,11 +27,11 @@ export default function RootLayout({ children }) {
     setMobileOpen((prev) => !prev);
   };
 
-  // Sidebar content (using Header here, adjust if you have a separate sidebar component)
+  // Sidebar content is provided by ConditionalSidebar.
   const sidebarContent = (
     <>
       <Toolbar />
-      <Header />
+      <ConditionalSidebar />
     </>
   );
 
@@ -37,7 +44,7 @@ export default function RootLayout({ children }) {
             <Box sx={{ display: "flex", minHeight: "100vh" }}>
               {isMobile ? (
                 <>
-                  {/* Temporary drawer overlays the content on mobile */}
+                  {/* Mobile: temporary (overlay) drawer */}
                   <Drawer
                     variant="temporary"
                     open={mobileOpen}
@@ -68,7 +75,7 @@ export default function RootLayout({ children }) {
                   </IconButton>
                 </>
               ) : (
-                // Permanent drawer on larger screens
+                // Desktop: permanent drawer
                 <Drawer
                   variant="permanent"
                   open
@@ -92,11 +99,13 @@ export default function RootLayout({ children }) {
                 sx={{
                   flexGrow: 1,
                   p: { xs: 2, sm: 3, md: 4 },
-                  ml: isMobile ? 0 : `${drawerWidth}px`, // No left margin on mobile
+                  ml: isMobile ? 0 : `${drawerWidth}px`,
                   transition: "margin 0.3s ease",
                 }}
               >
                 <Toolbar />
+                {/* Optionally, include a Header above the children */}
+                <Header drawerWidth={isMobile ? 0 : drawerWidth} />
                 {children}
               </Box>
             </Box>
