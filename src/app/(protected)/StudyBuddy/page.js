@@ -11,7 +11,7 @@ export default function StudyBuddyPage() {
       maxWidth="lg"
       sx={{
         py: 4,
-        background: "linear-gradient(135deg, #f3f4f6, #e2e8f0)",
+        background: "linear-gradient(135deg, #fceabb, #f8b500)",
         minHeight: "100vh",
       }}
     >
@@ -20,41 +20,60 @@ export default function StudyBuddyPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
       >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            borderRadius: 2,
-            mb: 4,
-            backgroundColor: "#ffffff",
-          }}
+        {/* Header Card */}
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 300 }}
         >
-          <Typography
-            variant="h3"
-            align="center"
-            gutterBottom
-            sx={{ fontWeight: "bold", color: "#3f51b5" }}
+          <Paper
+            elevation={4}
+            sx={{
+              p: 4,
+              borderRadius: 8,
+              mb: 4,
+              backgroundColor: "#fff8e1",
+              border: "2px dashed #ff9800",
+            }}
           >
-            Study Buddy
-          </Typography>
-          <Typography
-            variant="h6"
-            align="center"
-            color="text.secondary"
-          >
-            Connect, Collaborate, and Excel Together!
-          </Typography>
-        </Paper>
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            borderRadius: 2,
-            backgroundColor: "#ffffff",
-          }}
+            <Typography
+              variant="h3"
+              align="center"
+              gutterBottom
+              sx={{
+                fontWeight: "bold",
+                color: "#ff5722",
+                fontFamily: '"Comic Sans MS", cursive, sans-serif',
+              }}
+            >
+              Study Buddy
+            </Typography>
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{ fontWeight: 500, color: "#8e24aa" }}
+            >
+              Connect, Collaborate, and Excel Together!
+            </Typography>
+          </Paper>
+        </motion.div>
+
+        {/* List Card */}
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 300 }}
         >
-          <StudyBuddyList />
-        </Paper>
+          <Paper
+            elevation={4}
+            sx={{
+              p: 4,
+              borderRadius: 8,
+              backgroundColor: "#e1f5fe",
+              border: "2px solid #90caf9",
+            }}
+          >
+            <StudyBuddyList />
+          </Paper>
+        </motion.div>
       </motion.div>
     </Container>
   );

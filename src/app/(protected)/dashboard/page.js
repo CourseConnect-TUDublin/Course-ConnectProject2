@@ -112,7 +112,8 @@ export default function CourseConnectDashboard() {
             {/* Main Content Container */}
             <Box
               sx={{
-                maxWidth: 1200,
+                width: "100%",
+                maxWidth: "1400px", // Increased maxWidth to give more space on larger screens
                 mx: "auto",
                 px: { xs: 2, sm: 3 },
                 py: { xs: 3, sm: 4 },

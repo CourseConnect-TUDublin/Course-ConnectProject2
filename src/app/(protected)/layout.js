@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { SessionProvider } from "next-auth/react";
 import ConditionalSidebar from "../../components/ConditionalSidebar";
 import Header from "../../components/Header";
 import {
@@ -10,7 +11,8 @@ import {
   IconButton,
 } from "@mui/material";
 import { Menu } from "@mui/icons-material";
-import { useTheme, useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const drawerWidth = 240;
 
@@ -24,19 +26,52 @@ export default function ProtectedLayout({ children }) {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      <CssBaseline />
-      {isMobile ? (
-        <>
-          {/* Mobile: temporary drawer */}
+    <SessionProvider>
+      <Box sx={{ display: "flex", minHeight: "100vh" }}>
+        <CssBaseline />
+        {isMobile ? (
+          <>
+            {/* Mobile: Temporary Sidebar */}
+            <Drawer
+              variant="temporary"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              ModalProps={{
+                keepMounted: true, // Better performance on mobile.
+              }}
+              sx={{
+                "& .MuiDrawer-paper": {
+                  width: drawerWidth,
+                  boxSizing: "border-box",
+                  backgroundColor: "#ffffff",
+                  color: "#000000",
+                  borderRight: "1px solid #eaeaea",
+                },
+              }}
+            >
+              <Toolbar />
+              <ConditionalSidebar />
+            </Drawer>
+            {/* Hamburger Icon */}
+            <IconButton
+              onClick={handleDrawerToggle}
+              sx={{
+                position: "fixed",
+                top: 16,
+                left: 16,
+                zIndex: theme.zIndex.drawer + 1,
+              }}
+            >
+              <Menu />
+            </IconButton>
+          </>
+        ) : (
+          // Desktop: Permanent Sidebar
           <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true, // Better performance on mobile.
-            }}
+            variant="permanent"
             sx={{
+              width: drawerWidth,
+              flexShrink: 0,
               "& .MuiDrawer-paper": {
                 width: drawerWidth,
                 boxSizing: "border-box",
@@ -45,58 +80,29 @@ export default function ProtectedLayout({ children }) {
                 borderRight: "1px solid #eaeaea",
               },
             }}
+            open
           >
             <Toolbar />
             <ConditionalSidebar />
           </Drawer>
-          {/* Hamburger icon */}
-          <IconButton
-            onClick={handleDrawerToggle}
-            sx={{
-              position: "fixed",
-              top: 16,
-              left: 16,
-              zIndex: theme.zIndex.drawer + 1,
-            }}
-          >
-            <Menu />
-          </IconButton>
-        </>
-      ) : (
-        // Desktop: permanent drawer
-        <Drawer
-          variant="permanent"
+        )}
+        {/* Main Content Area */}
+        <Box
+          component="main"
           sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
-              width: drawerWidth,
-              boxSizing: "border-box",
-              backgroundColor: "#ffffff",
-              color: "#000000",
-              borderRight: "1px solid #eaeaea",
-            },
+            flexGrow: 1,
+            p: { xs: 2, sm: 3, md: 4 },
+            ml: isMobile ? 0 : `${drawerWidth}px`,
+            transition: "margin 0.3s ease",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
+          <Header drawerWidth={isMobile ? 0 : drawerWidth} />
           <Toolbar />
-          <ConditionalSidebar />
-        </Drawer>
-      )}
-      {/* Main Content Area */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: { xs: 2, sm: 3, md: 4 },
-          ml: isMobile ? 0 : `${drawerWidth}px`,
-          transition: "margin 0.3s ease",
-        }}
-      >
-        {/* Pass 0 as drawerWidth to Header on mobile if necessary */}
-        <Header drawerWidth={isMobile ? 0 : drawerWidth} />
-        <Toolbar />
-        {children}
+          {children}
+        </Box>
       </Box>
-    </div>
+    </SessionProvider>
   );
 }

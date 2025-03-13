@@ -21,11 +21,9 @@ export default function LoginSplash() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // When the session becomes authenticated, redirect to /dashboard.
+  // Redirect to /dashboard if authenticated.
   useEffect(() => {
-    console.log("Session status changed:", status, session);
     if (status === "authenticated") {
-      console.log("Session is authenticated, redirecting to /dashboard");
       router.replace("/dashboard");
     }
   }, [status, session, router]);
@@ -38,9 +36,10 @@ export default function LoginSplash() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          background: "linear-gradient(135deg, #0071e3, #005bb5)",
         }}
       >
-        <CircularProgress />
+        <CircularProgress sx={{ color: "#ffffff" }} />
       </Container>
     );
   }
@@ -48,17 +47,14 @@ export default function LoginSplash() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    console.log("Attempting sign in with:", { email, password });
     const result = await signIn("credentials", {
       redirect: false,
       email,
       password,
     });
-    console.log("Sign in result:", result);
     if (result?.error) {
       setError("Invalid email or password.");
     }
-    // Rely on the useEffect hook to detect session changes and redirect.
   };
 
   return (
@@ -70,21 +66,28 @@ export default function LoginSplash() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        background: "linear-gradient(135deg, #0071e3, #005bb5)",
       }}
     >
       <Paper
-        elevation={6}
+        elevation={8}
         sx={{
           p: 4,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          borderRadius: 2,
+          backgroundColor: "#ffffff",
+          width: "100%",
         }}
       >
-        <Typography variant="h4" sx={{ mb: 2 }}>
-          Welcome to Course Connect
+        <Typography
+          variant="h4"
+          sx={{ mb: 2, color: "#0071e3", fontWeight: 700 }}
+        >
+          Course Connect
         </Typography>
-        <Typography variant="h6" sx={{ mb: 2 }}>
+        <Typography variant="h6" sx={{ mb: 2, color: "#333333" }}>
           Please log in to continue
         </Typography>
 
@@ -114,7 +117,18 @@ export default function LoginSplash() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{
+              mt: 2,
+              backgroundColor: "#0071e3",
+              "&:hover": {
+                backgroundColor: "#005bb5",
+              },
+            }}
+          >
             Login
           </Button>
         </Box>

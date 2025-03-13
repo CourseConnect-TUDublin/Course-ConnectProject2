@@ -11,6 +11,7 @@ import {
   AppBar,
   Toolbar,
   Button,
+  Container,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -53,8 +54,12 @@ export default function HomePage() {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
-      {/* Full viewport container with matching grey background */}
-      <Box sx={{ backgroundColor: "#808080", minHeight: "100vh", p: 0, m: 0 }}>
+      <Box
+        sx={{
+          background: "linear-gradient(135deg, #0071e3, #005bb5)",
+          minHeight: "100vh",
+        }}
+      >
         <CssBaseline />
 
         {/* Top Navigation */}
@@ -63,12 +68,12 @@ export default function HomePage() {
           elevation={0}
           sx={{
             width: "100%",
-            backgroundColor: "#333333",
+            backgroundColor: "#0071e3", // Solid background instead of transparent
             color: "#ffffff",
-            borderBottom: "1px solid #555555",
+            borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
           }}
         >
-          <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 3 } }}>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
               Course Connect
             </Typography>
@@ -95,59 +100,65 @@ export default function HomePage() {
         <Toolbar />
 
         {/* Main Content Container */}
-        <Box
-          sx={{
-            maxWidth: 1200,
-            mx: "auto",
-            px: { xs: 2, sm: 3 },
-            py: { xs: 3, sm: 4 },
-          }}
-        >
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{ fontWeight: 700, letterSpacing: "-0.5px", mb: 1, color: "#ffffff" }}
-          >
-            Welcome, {userName}!
-          </Typography>
-          <Typography variant="subtitle1" sx={{ mb: { xs: 2, sm: 3 }, color: "#dddddd" }}>
-            Explore your tools:
-          </Typography>
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
+          <Box sx={{ textAlign: "center", color: "#ffffff", mb: 4 }}>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 2 }}>
+              Welcome, {userName}!
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Explore your tools below
+            </Typography>
+          </Box>
 
-          {/* Widget Grid */}
+          {/* Unique & Exciting Widget Grid */}
           <Grid container spacing={4}>
             {toolItems.map((tool) => (
-              <Grid item xs={12} sm={6} md={tool.label === "Timetable" ? 8 : 4} key={tool.label}>
+              <Grid
+                item
+                key={tool.label}
+                xs={12}
+                sm={6}
+                md={tool.label === "Timetable" ? 8 : 4}
+              >
                 <Link href={tool.route} style={{ textDecoration: "none" }}>
-                  <Paper
-                    elevation={6}
-                    sx={{
-                      p: { xs: 4, sm: 5 },
-                      borderRadius: 2,
-                      backgroundColor: "#ffffff",
-                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                      "&:hover": { transform: "translateY(-4px)", boxShadow: 10 },
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      textAlign: "center",
-                      cursor: "pointer",
-                      height: "100%",
-                    }}
+                  <motion.div
+                    whileHover={{ scale: 1.05, rotate: 1 }}
+                    transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <Box sx={{ mb: 2, color: "#333333" }}>{tool.icon}</Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#333333" }}>
-                      {tool.label}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Quick preview of {tool.label}
-                    </Typography>
-                  </Paper>
+                    <Paper
+                      elevation={8}
+                      sx={{
+                        p: { xs: 4, sm: 5 },
+                        borderRadius: 3,
+                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        textAlign: "center",
+                        cursor: "pointer",
+                        height: "100%",
+                        backgroundColor: "#ffffff",
+                      }}
+                    >
+                      <Box sx={{ mb: 2, color: "#0071e3" }}>
+                        {tool.icon}
+                      </Box>
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 600, mb: 1, color: "#333333" }}
+                      >
+                        {tool.label}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Quick preview of {tool.label}
+                      </Typography>
+                    </Paper>
+                  </motion.div>
                 </Link>
               </Grid>
             ))}
           </Grid>
-        </Box>
+        </Container>
       </Box>
     </motion.div>
   );

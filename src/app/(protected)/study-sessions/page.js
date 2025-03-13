@@ -3,44 +3,42 @@
 import React, { useState, useEffect } from "react";
 import useSWR, { mutate } from "swr";
 import {
-  Box,
+  Container,
   Grid,
   Paper,
   Typography,
-  Container,
   Button,
+  Box,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
-  Card,
-  CardContent,
+  CircularProgress,
   IconButton,
+  Tooltip,
+  Fade,
 } from "@mui/material";
 import { AddCircleOutline, Edit, Delete } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import { useSession } from "next-auth/react";
 
-// SWR fetcher function that throws an error if not ok.
+// SWR fetcher function that checks for errors.
 const fetcher = async (url) => {
   const res = await fetch(url);
   if (!res.ok) {
     const errorData = await res.json();
-    throw new Error(errorData.error || "An error occurred while fetching data.");
+    throw new Error(errorData.error || "Error fetching data");
   }
   return res.json();
 };
 
 export default function StudySessionsPage() {
-  // SWR fetch with a polling interval for near real-time updates (every 5 seconds)
+  const { data: session } = useSession();
   const { data: sessions, error } = useSWR("/api/sessions", fetcher, { refreshInterval: 5000 });
-  
-  // Local state for the create/edit form modal.
+
+  // Local state for modal dialog and form data.
   const [openDialog, setOpenDialog] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
   const [formData, setFormData] = useState({
@@ -49,26 +47,42 @@ export default function StudySessionsPage() {
     endTime: "",
     location: "",
     notes: "",
+    student: "",
   });
-  
-  // Sorting and filtering state.
-  const [sortOrder, setSortOrder] = useState("asc"); // asc or desc by startTime
-  const [searchTerm, setSearchTerm] = useState("");
 
-  // Open dialog for creating or editing session.
-  const handleOpenDialog = (session = null) => {
-    if (session) {
-      setEditingSession(session);
+  // Auto-populate student field once the session is available.
+  useEffect(() => {
+    if (session && session.user && session.user.id) {
+      setFormData((prev) => ({ ...prev, student: session.user.id }));
+    }
+  }, [session]);
+
+  // Open the create/edit dialog.
+  const handleOpenDialog = (sessionData = null) => {
+    if (sessionData) {
+      setEditingSession(sessionData);
       setFormData({
-        topic: session.topic || "",
-        startTime: session.startTime ? new Date(session.startTime).toISOString().slice(0, 16) : "",
-        endTime: session.endTime ? new Date(session.endTime).toISOString().slice(0, 16) : "",
-        location: session.location || "",
-        notes: session.notes || "",
+        topic: sessionData.topic || "",
+        startTime: sessionData.startTime
+          ? new Date(sessionData.startTime).toISOString().slice(0, 16)
+          : "",
+        endTime: sessionData.endTime
+          ? new Date(sessionData.endTime).toISOString().slice(0, 16)
+          : "",
+        location: sessionData.location || "",
+        notes: sessionData.notes || "",
+        student: sessionData.student || (session?.user?.id || ""),
       });
     } else {
       setEditingSession(null);
-      setFormData({ topic: "", startTime: "", endTime: "", location: "", notes: "" });
+      setFormData({
+        topic: "",
+        startTime: "",
+        endTime: "",
+        location: "",
+        notes: "",
+        student: session?.user?.id || "",
+      });
     }
     setOpenDialog(true);
   };
@@ -76,17 +90,30 @@ export default function StudySessionsPage() {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditingSession(null);
-    setFormData({ topic: "", startTime: "", endTime: "", location: "", notes: "" });
+    setFormData({
+      topic: "",
+      startTime: "",
+      endTime: "",
+      location: "",
+      notes: "",
+      student: session?.user?.id || "",
+    });
   };
 
-  // Create or update session based on editingSession value.
+  // Validate that endTime is after startTime.
+  const isValidTimeRange = (start, end) => new Date(end) > new Date(start);
+
   const handleSubmit = async () => {
     if (!formData.topic.trim() || !formData.startTime || !formData.endTime) {
       toast.error("Topic, Start Time, and End Time are required.");
       return;
     }
-    // Construct the payload; for updates, include the session id.
+    if (!isValidTimeRange(formData.startTime, formData.endTime)) {
+      toast.error("End Time must be after Start Time.");
+      return;
+    }
     const payload = {
+      student: formData.student,
       topic: formData.topic,
       startTime: new Date(formData.startTime).toISOString(),
       endTime: new Date(formData.endTime).toISOString(),
@@ -97,14 +124,14 @@ export default function StudySessionsPage() {
     try {
       let res;
       if (editingSession) {
-        // For updates, assume PUT endpoint: /api/sessions?id=<id>
+        // Update an existing session.
         res = await fetch(`/api/sessions?id=${editingSession.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
-        // For creation, use POST
+        // Create a new session.
         res = await fetch("/api/sessions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -116,16 +143,14 @@ export default function StudySessionsPage() {
         throw new Error(errorData.error || "Failed to save session");
       }
       toast.success(editingSession ? "Session updated!" : "Session created!");
-      // Revalidate sessions
       mutate("/api/sessions");
       handleCloseDialog();
     } catch (error) {
-      console.error(error);
+      console.error("Error in handleSubmit:", error);
       toast.error(error.message);
     }
   };
 
-  // Delete a session
   const handleDelete = async (sessionId) => {
     if (!window.confirm("Are you sure you want to delete this session?")) return;
     try {
@@ -139,97 +164,73 @@ export default function StudySessionsPage() {
       toast.success("Session deleted");
       mutate("/api/sessions");
     } catch (error) {
-      console.error(error);
+      console.error("Error in handleDelete:", error);
       toast.error(error.message);
     }
   };
 
-  // Filter and sort sessions based on search term and sort order.
-  const filteredSessions = sessions
-    ? sessions
-        .filter((session) => {
-          const topic = session.topic || "";
-          return topic.toLowerCase().includes(searchTerm.toLowerCase());
-        })
-        .sort((a, b) => {
-          const dateA = new Date(a.startTime);
-          const dateB = new Date(b.startTime);
-          return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-        })
-    : [];
+  if (error) {
+    return (
+      <Typography color="error" sx={{ mt: 4 }}>
+        Error loading sessions: {error.message}
+      </Typography>
+    );
+  }
 
-  if (error) return <Typography color="error">Error loading sessions: {error.message}</Typography>;
-  if (!sessions) return <Typography>Loading sessions...</Typography>;
+  if (!sessions) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Container
       maxWidth="lg"
       sx={{
         py: 4,
+        background: "linear-gradient(135deg, #f3f4f6, #e2e8f0)",
         minHeight: "100vh",
-        background:
-          "linear-gradient(135deg, rgba(243,244,246,1) 0%, rgba(226,232,240,1) 100%)",
       }}
     >
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2, color: "#3f51b5" }}>
-          Study Sessions
+      <Box
+        sx={{
+          mb: 4,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: "primary.main" }}>
+          My Study Sessions
         </Typography>
-        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
-          <TextField
-            label="Search by Topic"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            size="small"
-          />
-          <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel id="sort-label">Sort By</InputLabel>
-            <Select
-              labelId="sort-label"
-              label="Sort By"
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-            >
-              <MenuItem value="asc">Start Time (Ascending)</MenuItem>
-              <MenuItem value="desc">Start Time (Descending)</MenuItem>
-            </Select>
-          </FormControl>
-          <Button
-            variant="contained"
-            startIcon={<AddCircleOutline />}
-            onClick={() => handleOpenDialog()}
-            sx={{ backgroundColor: "#3f51b5" }}
-          >
-            Add Study Session
-          </Button>
-        </Box>
+        <Button variant="contained" startIcon={<AddCircleOutline />} onClick={() => handleOpenDialog()}>
+          Create Session
+        </Button>
       </Box>
 
-      {/* Sessions Grid */}
       <Grid container spacing={3}>
-        {filteredSessions.map((session) => (
-          <Grid item xs={12} sm={6} md={4} key={session.id}>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Card sx={{ borderRadius: 2, boxShadow: 3, position: "relative" }}>
-                <CardContent>
-                  <Typography variant="h6" sx={{ color: "#3f51b5" }}>
-                    {session.topic}
+        {sessions.map((sessionData) => (
+          <Grid item xs={12} sm={6} md={4} key={sessionData.id}>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+              <Paper elevation={3} sx={{ p: 2, borderRadius: 2, position: "relative" }}>
+                <Typography variant="h6" sx={{ color: "primary.main", mb: 1 }}>
+                  {sessionData.topic}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  {new Date(sessionData.startTime).toLocaleString()} - {new Date(sessionData.endTime).toLocaleString()}
+                </Typography>
+                {sessionData.location && (
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Location:</strong> {sessionData.location}
                   </Typography>
-                  <Typography variant="body2">
-                    {new Date(session.startTime).toLocaleString()} -{" "}
-                    {new Date(session.endTime).toLocaleString()}
+                )}
+                {sessionData.notes && (
+                  <Typography variant="body2" color="text.secondary">
+                    <strong>Notes:</strong> {sessionData.notes}
                   </Typography>
-                  {session.location && (
-                    <Typography variant="body2">
-                      Location: {session.location}
-                    </Typography>
-                  )}
-                  {session.notes && (
-                    <Typography variant="body2" color="text.secondary">
-                      Notes: {session.notes}
-                    </Typography>
-                  )}
-                </CardContent>
+                )}
                 <Box
                   sx={{
                     position: "absolute",
@@ -239,22 +240,34 @@ export default function StudySessionsPage() {
                     gap: 1,
                   }}
                 >
-                  <IconButton size="small" onClick={() => handleOpenDialog(session)}>
-                    <Edit fontSize="small" />
-                  </IconButton>
-                  <IconButton size="small" onClick={() => handleDelete(session.id)}>
-                    <Delete fontSize="small" />
-                  </IconButton>
+                  <Tooltip title="Edit Session">
+                    <IconButton size="small" onClick={() => handleOpenDialog(sessionData)}>
+                      <Edit fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete Session">
+                    <IconButton size="small" onClick={() => handleDelete(sessionData.id)}>
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
-              </Card>
+              </Paper>
             </motion.div>
           </Grid>
         ))}
       </Grid>
 
       {/* Create / Edit Session Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>{editingSession ? "Edit Study Session" : "Add New Study Session"}</DialogTitle>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        fullWidth
+        maxWidth="sm"
+        TransitionComponent={Fade}
+      >
+        <DialogTitle sx={{ fontWeight: "bold" }}>
+          {editingSession ? "Edit Study Session" : "Create New Study Session"}
+        </DialogTitle>
         <DialogContent>
           <TextField
             label="Topic"
@@ -298,9 +311,9 @@ export default function StudySessionsPage() {
             margin="normal"
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ p: 2 }}>
           <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" sx={{ backgroundColor: "#3f51b5" }}>
+          <Button onClick={handleSubmit} variant="contained">
             {editingSession ? "Update Session" : "Create Session"}
           </Button>
         </DialogActions>
