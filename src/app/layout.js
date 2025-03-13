@@ -9,14 +9,24 @@ import { Menu } from "@mui/icons-material";
 import { useState } from "react";
 import { useTheme, useMediaQuery } from "@mui/material";
 
+const drawerWidth = 240;
+
 export default function RootLayout({ children }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
-    setDrawerOpen(!drawerOpen);
+    setMobileOpen((prev) => !prev);
   };
+
+  // Sidebar content (using Header here, adjust if you have a separate sidebar component)
+  const sidebarContent = (
+    <>
+      <Toolbar />
+      <Header />
+    </>
+  );
 
   return (
     <html lang="en">
@@ -24,44 +34,57 @@ export default function RootLayout({ children }) {
         <ClientProviders>
           <CssBaseline />
           <SplashScreen>
-            <Box sx={{ display: "flex" }}>
-              {/* Drawer for collapsible sidebar */}
-              <Drawer
-                variant={isMobile ? "temporary" : "permanent"}
-                open={isMobile ? drawerOpen : true}
-                onClose={handleDrawerToggle}
-                ModalProps={{
-                  keepMounted: true,
-                }}
-                sx={{
-                  width: 240,
-                  flexShrink: 0,
-                  "& .MuiDrawer-paper": {
-                    width: 240,
-                    boxSizing: "border-box",
-                    backgroundColor: "#ffffff",
-                    color: "#000000",
-                    borderRight: "1px solid #eaeaea",
-                  },
-                }}
-              >
-                <Toolbar />
-                <Header />
-              </Drawer>
-              {/* Hamburger Menu for Mobile */}
-              {isMobile && (
-                <IconButton
-                  color="inherit"
-                  onClick={handleDrawerToggle}
+            <Box sx={{ display: "flex", minHeight: "100vh" }}>
+              {isMobile ? (
+                <>
+                  {/* Temporary drawer overlays the content on mobile */}
+                  <Drawer
+                    variant="temporary"
+                    open={mobileOpen}
+                    onClose={handleDrawerToggle}
+                    ModalProps={{ keepMounted: true }}
+                    sx={{
+                      "& .MuiDrawer-paper": {
+                        width: drawerWidth,
+                        boxSizing: "border-box",
+                        backgroundColor: "#ffffff",
+                        borderRight: "1px solid #eaeaea",
+                      },
+                    }}
+                  >
+                    {sidebarContent}
+                  </Drawer>
+                  {/* Hamburger menu icon */}
+                  <IconButton
+                    onClick={handleDrawerToggle}
+                    sx={{
+                      position: "fixed",
+                      top: 16,
+                      left: 16,
+                      zIndex: theme.zIndex.drawer + 1,
+                    }}
+                  >
+                    <Menu />
+                  </IconButton>
+                </>
+              ) : (
+                // Permanent drawer on larger screens
+                <Drawer
+                  variant="permanent"
+                  open
                   sx={{
-                    position: "fixed",
-                    top: 16,
-                    left: 16,
-                    zIndex: 1300,
+                    width: drawerWidth,
+                    flexShrink: 0,
+                    "& .MuiDrawer-paper": {
+                      width: drawerWidth,
+                      boxSizing: "border-box",
+                      backgroundColor: "#ffffff",
+                      borderRight: "1px solid #eaeaea",
+                    },
                   }}
                 >
-                  <Menu />
-                </IconButton>
+                  {sidebarContent}
+                </Drawer>
               )}
               {/* Main content area */}
               <Box
@@ -69,7 +92,7 @@ export default function RootLayout({ children }) {
                 sx={{
                   flexGrow: 1,
                   p: { xs: 2, sm: 3, md: 4 },
-                  ml: isMobile ? 0 : "240px", // No left margin on mobile
+                  ml: isMobile ? 0 : `${drawerWidth}px`, // No left margin on mobile
                   transition: "margin 0.3s ease",
                 }}
               >
