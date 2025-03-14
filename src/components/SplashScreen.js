@@ -3,19 +3,28 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { CircularProgress, Typography } from "@mui/material";
+import { CircularProgress, Typography, Box } from "@mui/material";
+import { useSession } from "next-auth/react";
 
 export default function SplashScreen({ children }) {
   const [showSplash, setShowSplash] = useState(true);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (status === "authenticated") {
+      // User is logged in; skip splash and go to dashboard.
       setShowSplash(false);
-      router.push("/login"); // Redirect to login page after 5 seconds
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [router]);
+      router.push("/dashboard");
+    } else if (status === "unauthenticated") {
+      // User is not logged in; show splash for 5 seconds then redirect to login.
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+        router.push("/login");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [router, status]);
 
   return (
     <>
@@ -31,7 +40,7 @@ export default function SplashScreen({ children }) {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: "#808080", // Grey background
+              background: "linear-gradient(135deg, #2196f3 0%, #21cbf3 100%)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
@@ -39,39 +48,40 @@ export default function SplashScreen({ children }) {
               zIndex: 9999,
             }}
           >
-            {/* Title */}
+            {/* Larger Logo */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1, transition: { duration: 2, ease: "easeOut" } }}
-              style={{
-                fontSize: "36px",
-                fontWeight: "bold",
-                color: "#ffffff",
-                textAlign: "center",
-              }}
+              animate={{ opacity: 1, scale: 1, transition: { duration: 1, ease: "easeOut" } }}
+              style={{ marginBottom: 20 }}
             >
-              Course Connect
+              <Box
+                component="img"
+                src="/course-connect-logo.svg"
+                alt="Course Connect Logo"
+                sx={{ width: 300, height: "auto" }}
+              />
             </motion.div>
 
             {/* Slogan */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 2.2, duration: 1 } }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0, transition: { delay: 1, duration: 1 } }}
               style={{
-                fontSize: "18px",
+                fontSize: "22px",
+                fontWeight: "bold",
                 color: "#ffffff",
                 textAlign: "center",
                 marginTop: "10px",
               }}
             >
-              Connecting Courses & Students
+              Connecting Courses to Students
             </motion.div>
 
             {/* Loading Spinner */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, transition: { delay: 3, duration: 1 } }}
-              style={{ marginTop: "20px" }}
+              style={{ marginTop: "30px" }}
             >
               <CircularProgress size={60} style={{ color: "#ffffff" }} />
             </motion.div>
@@ -79,7 +89,7 @@ export default function SplashScreen({ children }) {
         )}
       </AnimatePresence>
 
-      {/* Render main content after splash (for testing, you might hide children during development) */}
+      {/* Render main content after splash */}
       <div style={{ display: showSplash ? "none" : "block" }}>
         {children}
       </div>

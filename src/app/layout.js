@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import {
   CssBaseline,
@@ -12,18 +13,34 @@ import {
   Drawer,
 } from "@mui/material";
 import { Menu } from "@mui/icons-material";
-import Header from "@/components/Header"; // Your header component
-import Sidebar from "@/components/Sidebar"; // Your sidebar component (or ConditionalSidebar)
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
 import SplashScreen from "@/components/SplashScreen";
 
-const drawerWidth = 260; // Adjust sidebar width as needed
+const drawerWidth = 260;
 
 export default function RootLayout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+  const isLoginPage = pathname === "/login"; // Adjust if your login route is different
 
   const handleDrawerToggle = () => {
     setMobileOpen((prev) => !prev);
   };
+
+  // For the login page, bypass the global layout elements.
+  if (isLoginPage) {
+    return (
+      <html lang="en">
+        <body>
+          <SessionProvider>
+            <CssBaseline />
+            {children}
+          </SessionProvider>
+        </body>
+      </html>
+    );
+  }
 
   return (
     <html lang="en">

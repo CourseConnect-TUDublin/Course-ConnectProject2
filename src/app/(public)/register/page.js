@@ -72,15 +72,23 @@ export default function Register() {
         maxWidth="sm"
       >
         <Card sx={{ p: 3, boxShadow: 6, borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h4" align="center" gutterBottom>
+          <CardContent sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {/* Logo */}
+            <Box
+              component="img"
+              src="/course-connect-logo.svg"
+              alt="Course Connect Logo"
+              sx={{ width: 120, height: "auto", mb: 2 }}
+            />
+
+            <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 700, color: "#3f51b5" }}>
               Create an Account
             </Typography>
 
-            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-            {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+            {error && <Alert severity="error" sx={{ mb: 2, width: "100%" }}>{error}</Alert>}
+            {success && <Alert severity="success" sx={{ mb: 2, width: "100%" }}>{success}</Alert>}
 
-            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: "100%" }}>
               <TextField
                 fullWidth
                 label="Full Name"
@@ -115,7 +123,7 @@ export default function Register() {
                 fullWidth
                 variant="contained"
                 color="primary"
-                sx={{ mt: 2 }}
+                sx={{ mt: 2, py: 1.5 }}
                 disabled={loading}
               >
                 {loading ? <CircularProgress size={24} color="inherit" /> : "Register"}

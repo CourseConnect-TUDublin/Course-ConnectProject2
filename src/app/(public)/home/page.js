@@ -4,7 +4,6 @@ import React from "react";
 import {
   Box,
   Typography,
-  Grid,
   Paper,
   CssBaseline,
   IconButton,
@@ -47,6 +46,9 @@ export default function HomePage() {
   const { data: session } = useSession();
   const userName = session?.user?.email || "Guest";
 
+  // Colors to alternate backgrounds for cards
+  const cardColors = ["#e3f2fd", "#fce4ec", "#e8f5e9", "#fff3e0"];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -68,15 +70,23 @@ export default function HomePage() {
           elevation={0}
           sx={{
             width: "100%",
-            backgroundColor: "#0071e3", // Solid background instead of transparent
+            backgroundColor: "#0071e3",
             color: "#ffffff",
             borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
           }}
         >
           <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 3 } }}>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Course Connect
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Box
+                component="img"
+                src="/course-connect-logo.svg"
+                alt="Course Connect Logo"
+                sx={{ width: 50, mr: 1 }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Course Connect
+              </Typography>
+            </Box>
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <IconButton color="inherit">
                 <Search />
@@ -99,8 +109,8 @@ export default function HomePage() {
         </AppBar>
         <Toolbar />
 
-        {/* Main Content Container */}
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
+        {/* Hero Section */}
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Box sx={{ textAlign: "center", color: "#ffffff", mb: 4 }}>
             <Typography variant="h3" sx={{ fontWeight: 700, mb: 2 }}>
               Welcome, {userName}!
@@ -110,54 +120,43 @@ export default function HomePage() {
             </Typography>
           </Box>
 
-          {/* Unique & Exciting Widget Grid */}
-          <Grid container spacing={4}>
-            {toolItems.map((tool) => (
-              <Grid
-                item
-                key={tool.label}
-                xs={12}
-                sm={6}
-                md={tool.label === "Timetable" ? 8 : 4}
-              >
-                <Link href={tool.route} style={{ textDecoration: "none" }}>
+          {/* Vertical Card List */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {toolItems.map((tool, index) => (
+              <Link key={tool.label} href={tool.route} legacyBehavior>
+                <a style={{ textDecoration: "none" }}>
                   <motion.div
-                    whileHover={{ scale: 1.05, rotate: 1 }}
-                    transition={{ type: "spring", stiffness: 300 }}
+                    whileHover={{ scale: 1.02, transition: { type: "spring", stiffness: 300 } }}
                   >
                     <Paper
-                      elevation={8}
+                      elevation={6}
                       sx={{
-                        p: { xs: 4, sm: 5 },
+                        p: 2,
                         borderRadius: 3,
-                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
                         display: "flex",
-                        flexDirection: "column",
                         alignItems: "center",
-                        textAlign: "center",
+                        backgroundColor: cardColors[index % cardColors.length],
                         cursor: "pointer",
-                        height: "100%",
-                        backgroundColor: "#ffffff",
+                        minHeight: "100px",
                       }}
                     >
-                      <Box sx={{ mb: 2, color: "#0071e3" }}>
+                      <Box sx={{ mr: 3, color: "#0071e3", display: "flex", alignItems: "center" }}>
                         {tool.icon}
                       </Box>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 600, mb: 1, color: "#333333" }}
-                      >
-                        {tool.label}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Quick preview of {tool.label}
-                      </Typography>
+                      <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
+                          {tool.label}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Quick preview of {tool.label}
+                        </Typography>
+                      </Box>
                     </Paper>
                   </motion.div>
-                </Link>
-              </Grid>
+                </a>
+              </Link>
             ))}
-          </Grid>
+          </Box>
         </Container>
       </Box>
     </motion.div>

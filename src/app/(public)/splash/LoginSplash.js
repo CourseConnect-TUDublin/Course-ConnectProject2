@@ -13,6 +13,7 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
+import { motion } from "framer-motion";
 
 export default function LoginSplash() {
   const { data: session, status } = useSession();
@@ -36,7 +37,7 @@ export default function LoginSplash() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #0071e3, #005bb5)",
+          background: "linear-gradient(135deg, #2196f3 0%, #21cbf3 100%)",
         }}
       >
         <CircularProgress sx={{ color: "#ffffff" }} />
@@ -59,35 +60,45 @@ export default function LoginSplash() {
 
   return (
     <Container
-      component="main"
+      component={motion.main}
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeInOut" }}
       maxWidth="xs"
       sx={{
         height: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #0071e3, #005bb5)",
+        background: "linear-gradient(135deg, #2196f3 0%, #21cbf3 100%)",
       }}
     >
       <Paper
-        elevation={8}
+        elevation={12}
         sx={{
           p: 4,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          borderRadius: 2,
+          borderRadius: 4,
           backgroundColor: "#ffffff",
           width: "100%",
         }}
       >
+        {/* New Logo: Book and Connected People */}
+        <Box
+          component="img"
+          src="/course-connect-logo.svg"
+          alt="Course Connect Logo"
+          sx={{ width: 150, height: "auto", mb: 2 }}
+        />
         <Typography
           variant="h4"
-          sx={{ mb: 2, color: "#0071e3", fontWeight: 700 }}
+          sx={{ mb: 2, color: "#2196f3", fontWeight: 700 }}
         >
           Course Connect
         </Typography>
-        <Typography variant="h6" sx={{ mb: 2, color: "#333333" }}>
+        <Typography variant="h6" sx={{ mb: 2, color: "#333" }}>
           Please log in to continue
         </Typography>
 
@@ -106,6 +117,7 @@ export default function LoginSplash() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            sx={{ mb: 2 }}
           />
           <TextField
             label="Password"
@@ -116,6 +128,7 @@ export default function LoginSplash() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            sx={{ mb: 2 }}
           />
           <Button
             type="submit"
@@ -123,9 +136,11 @@ export default function LoginSplash() {
             variant="contained"
             sx={{
               mt: 2,
-              backgroundColor: "#0071e3",
+              mb: 2,
+              py: 1.5,
+              backgroundColor: "#2196f3",
               "&:hover": {
-                backgroundColor: "#005bb5",
+                backgroundColor: "#1976d2",
               },
             }}
           >

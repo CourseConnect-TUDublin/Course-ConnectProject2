@@ -51,7 +51,7 @@ export default function Login() {
       sx={{
         minHeight: "100vh",
         width: "100%",
-        backgroundColor: "#808080", // Grey background
+        background: "linear-gradient(135deg, #2196f3 0%, #21cbf3 100%)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -63,22 +63,32 @@ export default function Login() {
         component={motion.div}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeInOut" }}
-        maxWidth="sm" // Increase container width to "sm" for a larger form
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+        maxWidth="sm"
       >
         <Paper
-          elevation={10}
+          elevation={12}
           sx={{
-            p: 6, // Increase padding for a bigger form
-            borderRadius: 3,
+            p: 6,
+            borderRadius: 4,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            backgroundColor: "#ffffff",
           }}
         >
+          {/* Logo at the top */}
+          <Box
+            component="img"
+            src="/course-connect-logo.svg"
+            alt="Course Connect Logo"
+            sx={{ width: 150, height: "auto", mb: 2 }}
+          />
+
           <Typography
-            variant="h5"
-            sx={{ mb: 2, fontWeight: "bold", color: "#3f51b5" }}
+            variant="h4"
+            align="center"
+            sx={{ mb: 3, fontWeight: "bold", color: "#1976d2" }}
           >
             Login to Course Connect
           </Typography>
@@ -98,6 +108,7 @@ export default function Login() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              sx={{ mb: 2 }}
             />
             <TextField
               label="Password"
@@ -108,6 +119,7 @@ export default function Login() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              sx={{ mb: 2 }}
             />
             <FormControlLabel
               control={
@@ -118,9 +130,14 @@ export default function Login() {
                 />
               }
               label="Remember me"
-              sx={{ mt: 1 }}
+              sx={{ mb: 2 }}
             />
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3 }}>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 2, mb: 2, py: 1.5 }}
+            >
               {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
             </Button>
           </Box>
@@ -139,13 +156,13 @@ export default function Login() {
           <Button
             variant="outlined"
             fullWidth
-            sx={{ mt: 1, mb: 1, textTransform: "none" }}
+            sx={{ mt: 1, mb: 2, textTransform: "none" }}
             onClick={() => signIn("apple", { callbackUrl })}
           >
             Sign in with Apple
           </Button>
 
-          <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+          <Box sx={{ mt: 2, width: "100%", display: "flex", justifyContent: "space-between" }}>
             <MuiLink href="/forgot-password" variant="body2">
               Forgot password?
             </MuiLink>

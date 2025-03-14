@@ -11,6 +11,7 @@ import {
   Box,
   Grid,
   Paper,
+  Container,
 } from "@mui/material";
 import { Search, Notifications } from "@mui/icons-material";
 import { useSession, signOut } from "next-auth/react";
@@ -54,7 +55,6 @@ export default function CourseConnectDashboard() {
     }
   }, [session, fetchTimetable]);
 
-  // Display user's name; fallback to email if name is missing
   const userName = session?.user?.name || session?.user?.email || "Guest";
 
   return (
@@ -70,7 +70,7 @@ export default function CourseConnectDashboard() {
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
         >
-          <Box sx={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
+          <Box sx={{ background: "linear-gradient(135deg, #0071e3, #005bb5)", minHeight: "100vh" }}>
             <CssBaseline />
             {/* Top Navigation */}
             <AppBar
@@ -78,15 +78,22 @@ export default function CourseConnectDashboard() {
               elevation={0}
               sx={{
                 width: "100%",
-                backgroundColor: "#ffffff",
-                color: "#000000",
-                borderBottom: "1px solid #eaeaea",
+                backgroundColor: "#0071e3",
+                borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
               }}
             >
-              <Toolbar sx={{ justifyContent: "space-between" }}>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  Course Connect
-                </Typography>
+              <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 3 } }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box
+                    component="img"
+                    src="/course-connect-logo.svg"
+                    alt="Course Connect Logo"
+                    sx={{ width: 50, mr: 1 }}
+                  />
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: "#ffffff" }}>
+                    Course Connect
+                  </Typography>
+                </Box>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <IconButton color="inherit">
                     <Search />
@@ -94,13 +101,13 @@ export default function CourseConnectDashboard() {
                   <IconButton color="inherit">
                     <Notifications />
                   </IconButton>
-                  <Typography variant="body1" sx={{ ml: 2, fontWeight: 500 }}>
+                  <Typography variant="body1" sx={{ ml: 2, fontWeight: 500, color: "#ffffff" }}>
                     {userName}
                   </Typography>
                   <Button
-                    color="secondary"
+                    color="inherit"
                     onClick={() => signOut({ callbackUrl: "/login" })}
-                    sx={{ ml: 2, textTransform: "none" }}
+                    sx={{ ml: 2, textTransform: "none", color: "#ffffff" }}
                   >
                     Sign Out
                   </Button>
@@ -110,106 +117,98 @@ export default function CourseConnectDashboard() {
             <Toolbar />
 
             {/* Main Content Container */}
-            <Box
-              sx={{
-                width: "100%",
-                maxWidth: "1400px", // Increased maxWidth to give more space on larger screens
-                mx: "auto",
-                px: { xs: 2, sm: 3 },
-                py: { xs: 3, sm: 4 },
-              }}
-            >
-              <Typography
-                variant="h4"
-                gutterBottom
-                sx={{
-                  fontWeight: 700,
-                  letterSpacing: "-0.5px",
-                  mb: 1,
-                  fontSize: { xs: "1.75rem", sm: "2.125rem" },
-                }}
-              >
-                Welcome, {userName}!
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  mb: { xs: 2, sm: 3 },
-                  color: "#666666",
-                  fontSize: { xs: "0.875rem", sm: "1rem" },
-                }}
-              >
-                Here is your agenda for today
-              </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1, width: "100%" }}>
+              <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 3, sm: 4 }, width: "100%" }}>
+                <Typography
+                  variant="h4"
+                  gutterBottom
+                  sx={{
+                    fontWeight: 700,
+                    letterSpacing: "-0.5px",
+                    mb: 1,
+                    fontSize: { xs: "1.75rem", sm: "2.125rem" },
+                    color: "#333333",
+                  }}
+                >
+                  Welcome, {userName}!
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    mb: { xs: 2, sm: 3 },
+                    color: "#666666",
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
+                  }}
+                >
+                  Here is your agenda for today
+                </Typography>
 
-              {/* Widget Grid */}
-              <Grid container spacing={4}>
-                {/* Urgent Tasks Widget */}
-                <Grid item xs={12} md={4}>
-                  <Paper
-                    elevation={4}
-                    sx={{
-                      p: { xs: 3, sm: 4 },
-                      borderRadius: 2,
-                      backgroundColor: "#ffe6e6",
-                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                      "&:hover": { transform: "translateY(-4px)", boxShadow: 8 },
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <Box
+                {/* Widget Grid */}
+                <Grid container spacing={4}>
+                  {/* Urgent Tasks Widget */}
+                  <Grid item xs={12} md={4}>
+                    <Paper
+                      elevation={6}
                       sx={{
-                        mb: 2,
-                        px: 1,
-                        py: 0.5,
-                        backgroundColor: "#ffcccc",
-                        borderRadius: 1,
+                        p: { xs: 3, sm: 4 },
+                        borderRadius: 2,
+                        backgroundColor: "#ffe6e6",
+                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                        "&:hover": { transform: "translateY(-4px)", boxShadow: 8 },
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          mb: 2,
+                          px: 1,
+                          py: 0.5,
+                          backgroundColor: "#ffcccc",
+                          borderRadius: 1,
+                        }}
+                      >
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: "#b71c1c" }}>
+                          Urgent Tasks
+                        </Typography>
+                      </Box>
+                      <UrgentTasks />
+                    </Paper>
+                  </Grid>
+                  {/* Weekly Calendar Widget */}
+                  <Grid item xs={12} md={8}>
+                    <Paper
+                      elevation={6}
+                      sx={{
+                        p: { xs: 3, sm: 4 },
+                        borderRadius: 2,
+                        backgroundColor: "#fafafa",
+                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                        "&:hover": { transform: "translateY(-4px)", boxShadow: 8 },
+                        height: "100%",
                       }}
                     >
                       <Typography
                         variant="h6"
-                        sx={{ fontWeight: 700, color: "#b71c1c" }}
+                        sx={{
+                          mb: 2,
+                          fontWeight: 600,
+                          letterSpacing: "-0.25px",
+                          color: "#333333",
+                          fontSize: { xs: "1.125rem", sm: "1.5rem" },
+                        }}
                       >
-                        Urgent Tasks
+                        Weekly Calendar
                       </Typography>
-                    </Box>
-                    <UrgentTasks />
-                  </Paper>
+                      <CalendarWidget
+                        events={Array.isArray(timetable) ? timetable : []}
+                        refresh={refresh}
+                      />
+                    </Paper>
+                  </Grid>
                 </Grid>
-                {/* Weekly Calendar Widget */}
-                <Grid item xs={12} md={8}>
-                  <Paper
-                    elevation={4}
-                    sx={{
-                      p: { xs: 3, sm: 4 },
-                      borderRadius: 2,
-                      backgroundColor: "#fafafa",
-                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                      "&:hover": { transform: "translateY(-4px)", boxShadow: 8 },
-                      height: "100%",
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        mb: 2,
-                        fontWeight: 600,
-                        letterSpacing: "-0.25px",
-                        color: "#333333",
-                        fontSize: { xs: "1.125rem", sm: "1.5rem" },
-                      }}
-                    >
-                      Weekly Calendar
-                    </Typography>
-                    <CalendarWidget
-                      events={Array.isArray(timetable) ? timetable : []}
-                      refresh={refresh}
-                    />
-                  </Paper>
-                </Grid>
-              </Grid>
+              </Box>
             </Box>
           </Box>
         </motion.div>
