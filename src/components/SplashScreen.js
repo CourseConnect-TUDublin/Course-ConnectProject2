@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { CircularProgress, Typography, Box } from "@mui/material";
+import { CircularProgress, Box } from "@mui/material";
 import { useSession } from "next-auth/react";
 
 export default function SplashScreen({ children }) {
   const [showSplash, setShowSplash] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session, status } = useSession();
 
   useEffect(() => {
@@ -17,14 +18,17 @@ export default function SplashScreen({ children }) {
       setShowSplash(false);
       router.push("/dashboard");
     } else if (status === "unauthenticated") {
-      // User is not logged in; show splash for 5 seconds then redirect to login.
+      // User is not logged in; show splash for 5 seconds then redirect
       const timer = setTimeout(() => {
         setShowSplash(false);
-        router.push("/login");
+        // Check if current route is public (e.g., '/register' or '/login')
+        if (pathname !== "/register" && pathname !== "/login") {
+          router.push("/login");
+        }
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [router, status]);
+  }, [router, status, pathname]);
 
   return (
     <>
@@ -48,10 +52,14 @@ export default function SplashScreen({ children }) {
               zIndex: 9999,
             }}
           >
-            {/* Larger Logo */}
+            {/* Logo */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1, transition: { duration: 1, ease: "easeOut" } }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                transition: { duration: 1, ease: "easeOut" },
+              }}
               style={{ marginBottom: 20 }}
             >
               <Box
@@ -65,7 +73,11 @@ export default function SplashScreen({ children }) {
             {/* Slogan */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0, transition: { delay: 1, duration: 1 } }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                transition: { delay: 1, duration: 1 },
+              }}
               style={{
                 fontSize: "22px",
                 fontWeight: "bold",
@@ -80,7 +92,10 @@ export default function SplashScreen({ children }) {
             {/* Loading Spinner */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 3, duration: 1 } }}
+              animate={{
+                opacity: 1,
+                transition: { delay: 3, duration: 1 },
+              }}
               style={{ marginTop: "30px" }}
             >
               <CircularProgress size={60} style={{ color: "#ffffff" }} />
